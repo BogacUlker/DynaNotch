@@ -32,6 +32,14 @@ public enum NotchViews {
     case quickNotes
 }
 
+enum NotchAnimationStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
+    case classic = "Classic"
+    case spring = "Spring"
+    case snappy = "Snappy"
+
+    var id: String { rawValue }
+}
+
 enum SettingsEnum {
     case general
     case about

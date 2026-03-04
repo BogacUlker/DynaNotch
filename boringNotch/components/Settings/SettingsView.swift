@@ -173,6 +173,7 @@ struct GeneralSettings: View {
     @Default(.enableGestures) var enableGestures
     @Default(.openNotchOnHover) var openNotchOnHover
     @Default(.displayModeOverride) var displayModeOverride
+    @Default(.notchAnimationStyle) var notchAnimationStyle
     
 
     var body: some View {
@@ -362,6 +363,11 @@ struct GeneralSettings: View {
             }
             Defaults.Toggle(key: .enableHaptics) {
                     Text("Enable haptic feedback")
+            }
+            Picker("Animation style", selection: $notchAnimationStyle) {
+                ForEach(NotchAnimationStyle.allCases) { style in
+                    Text(style.rawValue).tag(style)
+                }
             }
             Toggle("Remember last tab", isOn: $coordinator.openLastTabByDefault)
             if openNotchOnHover {

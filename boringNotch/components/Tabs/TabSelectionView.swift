@@ -47,7 +47,7 @@ struct TabSelectionView: View {
         HStack(spacing: 0) {
             ForEach(visibleTabs) { tab in
                     TabButton(label: tab.label, icon: tab.icon, horizontalPadding: tabPadding, selected: coordinator.currentView == tab.view) {
-                        withAnimation(.smooth) {
+                        withAnimation(BoringAnimations.tabSwitchAnimation) {
                             coordinator.currentView = tab.view
                         }
                     }
