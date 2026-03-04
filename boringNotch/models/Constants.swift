@@ -64,6 +64,12 @@ struct QuickNote: Codable, Hashable, Equatable, Defaults.Serializable {
     }
 }
 
+struct PomodoroDailyStats: Codable, Hashable, Equatable, Defaults.Serializable {
+    var date: String // "yyyy-MM-dd"
+    var completedCycles: Int
+    var focusMinutes: Int
+}
+
 enum SneakPeekStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
     case standard = "Default"
     case inline = "Inline"
@@ -159,6 +165,11 @@ extension Defaults.Keys {
     static let pomodoroLongBreakDuration = Key<TimeInterval>("pomodoroLongBreakDuration", default: 15 * 60)
     static let pomodoroCyclesBeforeLongBreak = Key<Double>("pomodoroCyclesBeforeLongBreak", default: 4)
     static let pomodoroNotifications = Key<Bool>("pomodoroNotifications", default: true)
+    static let pomodoroTaskName = Key<String>("pomodoroTaskName", default: "")
+    static let pomodoroWeeklyHistory = Key<[PomodoroDailyStats]>("pomodoroWeeklyHistory", default: [])
+    static let pomodoroTodayCycles = Key<Int>("pomodoroTodayCycles", default: 0)
+    static let pomodoroTodayFocusMinutes = Key<Int>("pomodoroTodayFocusMinutes", default: 0)
+    static let pomodoroTodayDate = Key<String>("pomodoroTodayDate", default: "")
 
     // MARK: System Monitor
     static let enableSystemMonitor = Key<Bool>("enableSystemMonitor", default: false)

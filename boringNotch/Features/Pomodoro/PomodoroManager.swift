@@ -39,6 +39,12 @@ class PomodoroManager: ObservableObject {
     @Published var timerState: PomodoroTimerState = .idle
     @Published var remainingSeconds: TimeInterval = 0
     @Published var completedCycles: Int = 0
+    @Published var taskName: String = "" {
+        didSet { Defaults[.pomodoroTaskName] = taskName }
+    }
+    @Published var todayCycles: Int = 0
+    @Published var todayFocusMinutes: Int = 0
+    @Published var weeklyHistory: [PomodoroDailyStats] = []
 
     // MARK: - Computed
 
@@ -65,6 +71,9 @@ class PomodoroManager: ObservableObject {
 
     private init() {
         remainingSeconds = Defaults[.pomodoroWorkDuration]
+        taskName = Defaults[.pomodoroTaskName]
+        loadTodayStats()
+        weeklyHistory = Defaults[.pomodoroWeeklyHistory]
         requestNotificationPermission()
     }
 
@@ -142,6 +151,7 @@ class PomodoroManager: ObservableObject {
         switch phase {
         case .work:
             completedCycles += 1
+            recordWorkCompletion()
             let cyclesBeforeLong = Int(Defaults[.pomodoroCyclesBeforeLongBreak])
             if completedCycles >= cyclesBeforeLong {
                 phase = .longBreak
@@ -158,6 +168,78 @@ class PomodoroManager: ObservableObject {
         remainingSeconds = totalSeconds
         timerState = .idle
         logger.info("[POMODORO] next phase=\(self.phase.rawValue) remaining=\(Int(self.remainingSeconds))")
+    }
+
+    // MARK: - Stats Persistence
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+
+    private var todayKey: String {
+        Self.dateFormatter.string(from: Date())
+    }
+
+    private func loadTodayStats() {
+        let today = todayKey
+        if Defaults[.pomodoroTodayDate] == today {
+            todayCycles = Defaults[.pomodoroTodayCycles]
+            todayFocusMinutes = Defaults[.pomodoroTodayFocusMinutes]
+        } else {
+            // Day rolled over — archive yesterday and reset
+            archiveYesterday()
+            todayCycles = 0
+            todayFocusMinutes = 0
+            Defaults[.pomodoroTodayDate] = today
+            Defaults[.pomodoroTodayCycles] = 0
+            Defaults[.pomodoroTodayFocusMinutes] = 0
+        }
+    }
+
+    private func archiveYesterday() {
+        let prevDate = Defaults[.pomodoroTodayDate]
+        let prevCycles = Defaults[.pomodoroTodayCycles]
+        guard !prevDate.isEmpty, prevCycles > 0 else { return }
+
+        var history = Defaults[.pomodoroWeeklyHistory]
+        // Remove existing entry for that date if present
+        history.removeAll { $0.date == prevDate }
+        history.append(PomodoroDailyStats(
+            date: prevDate,
+            completedCycles: prevCycles,
+            focusMinutes: Defaults[.pomodoroTodayFocusMinutes]
+        ))
+        // Keep only last 7 days
+        if history.count > 7 {
+            history = Array(history.suffix(7))
+        }
+        Defaults[.pomodoroWeeklyHistory] = history
+        weeklyHistory = history
+    }
+
+    private func recordWorkCompletion() {
+        loadTodayStats() // Ensure day is current
+        let workMinutes = Int(Defaults[.pomodoroWorkDuration] / 60)
+        todayCycles += 1
+        todayFocusMinutes += workMinutes
+        Defaults[.pomodoroTodayCycles] = todayCycles
+        Defaults[.pomodoroTodayFocusMinutes] = todayFocusMinutes
+
+        // Also update weekly history live for today
+        var history = Defaults[.pomodoroWeeklyHistory]
+        history.removeAll { $0.date == todayKey }
+        history.append(PomodoroDailyStats(
+            date: todayKey,
+            completedCycles: todayCycles,
+            focusMinutes: todayFocusMinutes
+        ))
+        if history.count > 7 {
+            history = Array(history.suffix(7))
+        }
+        Defaults[.pomodoroWeeklyHistory] = history
+        weeklyHistory = history
     }
 
     // MARK: - Notifications

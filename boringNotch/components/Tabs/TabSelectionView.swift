@@ -40,7 +40,7 @@ struct TabSelectionView: View {
     }
 
     private var tabPadding: CGFloat {
-        visibleTabs.count > 4 ? 10 : 15
+        visibleTabs.count > 4 ? 13 : 18
     }
 
     var body: some View {

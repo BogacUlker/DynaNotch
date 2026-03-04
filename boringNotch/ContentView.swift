@@ -749,7 +749,7 @@ struct ContentView: View {
     }
 
     private func updateWindowKeyFocus() {
-        let needs = vm.notchState == .open && coordinator.currentView == .quickNotes
+        let needs = vm.notchState == .open && (coordinator.currentView == .quickNotes || coordinator.currentView == .pomodoro)
         if let window = NSApp.windows.first(where: { $0 is BoringNotchSkyLightWindow }) as? BoringNotchSkyLightWindow {
             window.needsKeyFocus = needs
             if needs {
