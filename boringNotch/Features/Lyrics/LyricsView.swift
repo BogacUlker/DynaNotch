@@ -61,6 +61,107 @@ struct LyricsCompactView: View {
     }
 }
 
+// MARK: - Lyrics Side Panel
+
+/// Side panel that shows synchronized lyrics to the left of the album art.
+/// Visible only when the notch is expanded and lyrics are available.
+struct LyricsSidePanel: View {
+    @ObservedObject var lyricsManager = LyricsManager.shared
+    @ObservedObject var musicManager = MusicManager.shared
+
+    /// Album art dominant color for text tinting.
+    var accentColor: Color
+
+    private let contextLines = 2
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 0.25)) { timeline in
+            let elapsed = currentElapsed(at: timeline.date)
+            let _ = lyricsManager.updatePosition(elapsed)
+
+            panelContent
+        }
+        .frame(width: 120)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white.opacity(0.05))
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .opacity(musicManager.isPlaying ? 1 : 0.4)
+    }
+
+    @ViewBuilder
+    private var panelContent: some View {
+        if lyricsManager.hasSyncedLyrics {
+            syncedView
+        } else if !lyricsManager.plainText.isEmpty {
+            plainView
+        } else {
+            EmptyView()
+        }
+    }
+
+    private var syncedView: some View {
+        let lines = lyricsManager.syncedLines
+        let activeIdx = lyricsManager.currentLineIndex ?? 0
+
+        return VStack(alignment: .leading, spacing: 3) {
+            ForEach(visibleRange(activeIndex: activeIdx, total: lines.count), id: \.self) { idx in
+                let isActive = idx == activeIdx
+                Text(lines[idx].text)
+                    .font(.system(
+                        size: isActive ? 11 : 10,
+                        weight: isActive ? .semibold : .regular
+                    ))
+                    .foregroundColor(isActive ? accentColor : .gray.opacity(0.45))
+                    .lineLimit(2)
+                    .truncationMode(.tail)
+                    .scaleEffect(isActive ? 1.0 : 0.95, anchor: .leading)
+                    .opacity(isActive ? 1.0 : lineOpacity(index: idx, activeIndex: activeIdx))
+                    .animation(.easeInOut(duration: 0.3), value: activeIdx)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .animation(.easeInOut(duration: 0.3), value: activeIdx)
+    }
+
+    private var plainView: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            Text(lyricsManager.plainText)
+                .font(.system(size: 10))
+                .foregroundColor(.gray.opacity(0.7))
+                .lineSpacing(3)
+                .multilineTextAlignment(.leading)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+        }
+    }
+
+    private func visibleRange(activeIndex: Int, total: Int) -> Range<Int> {
+        let start = max(0, activeIndex - contextLines)
+        let end = min(total, activeIndex + contextLines + 1)
+        return start..<end
+    }
+
+    private func lineOpacity(index: Int, activeIndex: Int) -> Double {
+        let distance = abs(index - activeIndex)
+        switch distance {
+        case 0: return 1.0
+        case 1: return 0.5
+        default: return 0.3
+        }
+    }
+
+    private func currentElapsed(at date: Date) -> TimeInterval {
+        guard musicManager.isPlaying else { return musicManager.elapsedTime }
+        let delta = date.timeIntervalSince(musicManager.timestampDate)
+        let progressed = musicManager.elapsedTime + (delta * musicManager.playbackRate)
+        return min(max(progressed, 0), musicManager.songDuration)
+    }
+}
+
 // MARK: - Karaoke Lyrics View (Multi-Line)
 
 /// Karaoke lyrics view: displays multiple lines with the active line highlighted.

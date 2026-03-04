@@ -146,6 +146,7 @@ extension Defaults.Keys {
     static let pomodoroShortBreakDuration = Key<TimeInterval>("pomodoroShortBreakDuration", default: 5 * 60)
     static let pomodoroLongBreakDuration = Key<TimeInterval>("pomodoroLongBreakDuration", default: 15 * 60)
     static let pomodoroCyclesBeforeLongBreak = Key<Double>("pomodoroCyclesBeforeLongBreak", default: 4)
+    static let pomodoroNotifications = Key<Bool>("pomodoroNotifications", default: true)
 
     // MARK: Battery
     static let showPowerStatusNotifications = Key<Bool>("showPowerStatusNotifications", default: true)

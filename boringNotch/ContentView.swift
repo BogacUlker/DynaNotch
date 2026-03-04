@@ -23,6 +23,7 @@ struct ContentView: View {
     @ObservedObject var batteryModel = BatteryStatusViewModel.shared
     @ObservedObject var brightnessManager = BrightnessManager.shared
     @ObservedObject var volumeManager = VolumeManager.shared
+    @ObservedObject var pomodoroManager = PomodoroManager.shared
     @State private var hoverTask: Task<Void, Never>?
     @State private var isHovering: Bool = false
     @State private var anyDropDebounceTask: Task<Void, Never>?
@@ -79,6 +80,10 @@ struct ContentView: View {
         } else if (!coordinator.expandingView.show || coordinator.expandingView.type == .music)
             && vm.notchState == .closed && (musicManager.isPlaying || !musicManager.isPlayerIdle)
             && coordinator.musicLiveActivityEnabled && !vm.hideOnClosed
+        {
+            chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
+        } else if !coordinator.expandingView.show && vm.notchState == .closed
+            && pomodoroManager.timerState != .idle && !vm.hideOnClosed
         {
             chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
         } else if !coordinator.expandingView.show && vm.notchState == .closed
@@ -324,6 +329,9 @@ struct ContentView: View {
                       } else if (!coordinator.expandingView.show || coordinator.expandingView.type == .music) && vm.notchState == .closed && (musicManager.isPlaying || !musicManager.isPlayerIdle) && coordinator.musicLiveActivityEnabled && !vm.hideOnClosed {
                           MusicLiveActivity()
                               .frame(alignment: .center)
+                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState != .idle && !vm.hideOnClosed {
+                          PomodoroLiveActivity()
+                              .frame(alignment: .center)
                       } else if !coordinator.expandingView.show && vm.notchState == .closed && (!musicManager.isPlaying && musicManager.isPlayerIdle) && Defaults[.showNotHumanFace] && !vm.hideOnClosed  {
                           BoringFaceAnimation()
                        } else if vm.notchState == .open {
@@ -515,6 +523,53 @@ struct ContentView: View {
                 ),
                 alignment: .center
             )
+        }
+        .frame(
+            height: vm.effectiveClosedNotchHeight,
+            alignment: .center
+        )
+    }
+
+    @ViewBuilder
+    func PomodoroLiveActivity() -> some View {
+        let phaseColor: Color = {
+            switch pomodoroManager.phase {
+            case .work: return .red
+            case .shortBreak: return .green
+            case .longBreak: return .blue
+            }
+        }()
+        let mins = Int(pomodoroManager.remainingSeconds) / 60
+        let secs = Int(pomodoroManager.remainingSeconds) % 60
+        let timeText = String(format: "%d:%02d", mins, secs)
+
+        HStack {
+            // Left: mini circular progress ring
+            ZStack {
+                Circle()
+                    .stroke(Color.gray.opacity(0.2), lineWidth: 2)
+                Circle()
+                    .trim(from: 0, to: pomodoroManager.progress)
+                    .stroke(phaseColor, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .animation(.linear(duration: 1), value: pomodoroManager.progress)
+            }
+            .frame(
+                width: max(0, vm.effectiveClosedNotchHeight - 12),
+                height: max(0, vm.effectiveClosedNotchHeight - 12)
+            )
+
+            // Center: notch gap
+            Rectangle()
+                .fill(.black)
+                .frame(width: vm.closedNotchSize.width + 10)
+
+            // Right: countdown text
+            Text(timeText)
+                .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                .foregroundColor(pomodoroManager.timerState == .paused ? phaseColor.opacity(0.5) : phaseColor)
+                .fixedSize()
+                .padding(.trailing, 4)
         }
         .frame(
             height: vm.effectiveClosedNotchHeight,

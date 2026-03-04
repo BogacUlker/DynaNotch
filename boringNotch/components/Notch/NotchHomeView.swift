@@ -156,20 +156,6 @@ struct MusicControlsView: View {
                 frameWidth: width
             )
             .fontWeight(.medium)
-            let _ = notchHomeLogger.info("[NOTCH-HOME] songInfo — enableLyrics=\(Defaults[.enableLyrics]) displayMode=\(Defaults[.lyricsDisplayMode].rawValue) notchState=\(vm.notchState == .open ? "open" : "closed")")
-            if Defaults[.enableLyrics] {
-                if Defaults[.lyricsDisplayMode] == .karaoke && vm.notchState == .open {
-                    LyricsKaraokeView(
-                        accentColor: Defaults[.playerColorTinting]
-                            ? Color(nsColor: musicManager.avgColor).ensureMinimumBrightness(factor: 0.6)
-                            : .white
-                    )
-                    .frame(maxHeight: 80)
-                    .opacity(musicManager.isPlaying ? 1 : 0)
-                } else {
-                    LyricsCompactView(frameWidth: width)
-                }
-            }
         }
     }
 
@@ -407,6 +393,8 @@ struct NotchHomeView: View {
     @ObservedObject var webcamManager = WebcamManager.shared
     @ObservedObject var batteryModel = BatteryStatusViewModel.shared
     @ObservedObject var coordinator = BoringViewCoordinator.shared
+    @ObservedObject var lyricsManager = LyricsManager.shared
+    @ObservedObject var musicManager = MusicManager.shared
     let albumArtNamespace: Namespace.ID
 
     var body: some View {
@@ -423,8 +411,23 @@ struct NotchHomeView: View {
         Defaults[.showMirror] && webcamManager.cameraAvailable && vm.isCameraExpanded
     }
 
+    private var shouldShowLyrics: Bool {
+        Defaults[.enableLyrics] && lyricsManager.hasLyrics && !lyricsManager.isFetching
+    }
+
+    private var lyricsAccentColor: Color {
+        Defaults[.playerColorTinting]
+            ? Color(nsColor: musicManager.avgColor).ensureMinimumBrightness(factor: 0.6)
+            : .white
+    }
+
     private var mainContent: some View {
         HStack(alignment: .top, spacing: (shouldShowCamera && Defaults[.showCalendar]) ? 10 : 15) {
+            if shouldShowLyrics {
+                LyricsSidePanel(accentColor: lyricsAccentColor)
+                    .transition(.move(edge: .leading).combined(with: .opacity))
+            }
+
             MusicPlayerView(albumArtNamespace: albumArtNamespace)
 
             if Defaults[.showCalendar] {

@@ -48,6 +48,12 @@ struct SettingsView: View {
 //                NavigationLink(value: "Downloads") {
 //                    Label("Downloads", systemImage: "square.and.arrow.down")
 //                }
+                NavigationLink(value: "Pomodoro") {
+                    Label("Pomodoro", systemImage: "timer")
+                }
+                NavigationLink(value: "Lyrics") {
+                    Label("Lyrics", systemImage: "music.note.list")
+                }
                 NavigationLink(value: "Shelf") {
                     Label("Shelf", systemImage: "books.vertical")
                 }
@@ -83,6 +89,10 @@ struct SettingsView: View {
                     HUD()
                 case "Battery":
                     Charge()
+                case "Pomodoro":
+                    PomodoroSettings()
+                case "Lyrics":
+                    LyricsSettings()
                 case "Shelf":
                     Shelf()
                 case "Shortcuts":
@@ -610,8 +620,6 @@ struct Media: View {
     @Default(.enableSneakPeek) private var enableSneakPeek
     @Default(.sneakPeekStyles) var sneakPeekStyles
 
-    @Default(.enableLyrics) var enableLyrics
-
     var body: some View {
         Form {
             Section {
@@ -690,12 +698,6 @@ struct Media: View {
             
             Section {
                 MusicSlotConfigurationView()
-                Defaults.Toggle(key: .enableLyrics) {
-                    HStack {
-                        Text("Show lyrics below artist name")
-                        customBadge(text: "Beta")
-                    }
-                }
             } header: {
                 Text("Media controls")
             }  footer: {
@@ -1802,6 +1804,129 @@ func warningBadge(_ text: String, _ description: String) -> some View {
             }
             Spacer()
         }
+    }
+}
+
+// MARK: - Pomodoro Settings
+
+struct PomodoroSettings: View {
+    @Default(.pomodoroWorkDuration) var workDuration
+    @Default(.pomodoroShortBreakDuration) var shortBreakDuration
+    @Default(.pomodoroLongBreakDuration) var longBreakDuration
+    @Default(.pomodoroCyclesBeforeLongBreak) var cyclesBeforeLongBreak
+
+    var body: some View {
+        Form {
+            Section {
+                Defaults.Toggle(key: .enablePomodoro) {
+                    Text("Enable Pomodoro timer")
+                }
+                Defaults.Toggle(key: .pomodoroNotifications) {
+                    Text("Show notifications")
+                }
+            } header: {
+                Text("General")
+            }
+
+            Section {
+                HStack {
+                    Stepper(value: $workDuration, in: (5 * 60)...(60 * 60), step: 5 * 60) {
+                        HStack {
+                            Text("Work duration")
+                            Spacer()
+                            Text("\(Int(workDuration) / 60) min")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                HStack {
+                    Stepper(value: $shortBreakDuration, in: (1 * 60)...(30 * 60), step: 60) {
+                        HStack {
+                            Text("Short break")
+                            Spacer()
+                            Text("\(Int(shortBreakDuration) / 60) min")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                HStack {
+                    Stepper(value: $longBreakDuration, in: (5 * 60)...(60 * 60), step: 5 * 60) {
+                        HStack {
+                            Text("Long break")
+                            Spacer()
+                            Text("\(Int(longBreakDuration) / 60) min")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                HStack {
+                    Stepper(value: $cyclesBeforeLongBreak, in: 2...8, step: 1) {
+                        HStack {
+                            Text("Cycles before long break")
+                            Spacer()
+                            Text("\(Int(cyclesBeforeLongBreak))")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            } header: {
+                Text("Durations")
+            } footer: {
+                Text("Changes apply to the next session, not the running timer.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .accentColor(.effectiveAccent)
+        .navigationTitle("Pomodoro")
+    }
+}
+
+// MARK: - Lyrics Settings
+
+struct LyricsSettings: View {
+    @Default(.lyricsDisplayMode) var displayMode
+    @Default(.lyricsFontSize) var fontSize
+
+    var body: some View {
+        Form {
+            Section {
+                Defaults.Toggle(key: .enableLyrics) {
+                    HStack {
+                        Text("Enable lyrics")
+                        customBadge(text: "Beta")
+                    }
+                }
+            } header: {
+                Text("General")
+            }
+
+            Section {
+                Picker("Display mode", selection: $displayMode) {
+                    ForEach(LyricsDisplayMode.allCases) { mode in
+                        Text(mode.rawValue).tag(mode)
+                    }
+                }
+                HStack {
+                    Stepper(value: $fontSize, in: 9...20, step: 1) {
+                        HStack {
+                            Text("Font size")
+                            Spacer()
+                            Text("\(Int(fontSize)) pt")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+            } header: {
+                Text("Appearance")
+            } footer: {
+                Text("Compact shows a single scrolling line. Karaoke shows multiple synchronized lines.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .accentColor(.effectiveAccent)
+        .navigationTitle("Lyrics")
     }
 }
 

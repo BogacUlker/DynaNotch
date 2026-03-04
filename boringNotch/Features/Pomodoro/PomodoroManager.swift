@@ -173,6 +173,7 @@ class PomodoroManager: ObservableObject {
     }
 
     private func sendNotification(for completedPhase: PomodoroPhase) {
+        guard Defaults[.pomodoroNotifications] else { return }
         let content = UNMutableNotificationContent()
         content.sound = .default
 

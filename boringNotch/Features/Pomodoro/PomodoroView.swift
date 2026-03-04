@@ -19,8 +19,12 @@ struct PomodoroView: View {
             circularProgress
             controlPanel
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .transition(.asymmetric(
+            insertion: .opacity.combined(with: .move(edge: .top)),
+            removal: .opacity
+        ))
     }
 
     // MARK: - Circular Progress
@@ -58,7 +62,7 @@ struct PomodoroView: View {
     // MARK: - Control Panel
 
     private var controlPanel: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(spacing: 8) {
             // Cycle counter
             HStack(spacing: 4) {
                 let cyclesBeforeLong = Int(Defaults[.pomodoroCyclesBeforeLongBreak])
@@ -67,7 +71,6 @@ struct PomodoroView: View {
                         .fill(i < manager.completedCycles ? phaseColor : Color.gray.opacity(0.3))
                         .frame(width: 8, height: 8)
                 }
-                Spacer()
             }
 
             // Phase label
