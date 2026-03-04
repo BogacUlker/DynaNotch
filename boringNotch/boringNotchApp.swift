@@ -332,6 +332,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
+        NotificationCenter.default.addObserver(
+            forName: Notification.Name.displayModeOverrideChanged, object: nil, queue: nil
+        ) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self else { return }
+                self.cleanupWindows()
+                self.adjustWindowPosition(changeAlpha: true)
+                self.setupDragDetectors()
+            }
+        }
+
         // Use closure-based observers for DistributedNotificationCenter and keep tokens for removal
         screenLockedObserver = DistributedNotificationCenter.default().addObserver(
             forName: NSNotification.Name(rawValue: "com.apple.screenIsLocked"),
@@ -492,6 +503,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 
                 if windows[uuid] == nil {
                     let viewModel = BoringViewModel(screenUUID: uuid)
+                    viewModel.displayMode = DisplayModeDetector.detect(for: screen)
                     let window = createBoringNotchWindow(for: screen, with: viewModel)
 
                     windows[uuid] = window
@@ -499,6 +511,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
 
                 if let window = windows[uuid], let viewModel = viewModels[uuid] {
+                    viewModel.displayMode = DisplayModeDetector.detect(for: screen)
                     positionWindow(window, on: screen, changeAlpha: changeAlpha)
 
                     if viewModel.notchState == .closed {
@@ -524,7 +537,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
 
             vm.screenUUID = selectedScreen.displayUUID
-            vm.notchSize = getClosedNotchSize(screenUUID: selectedScreen.displayUUID)
+            vm.displayMode = DisplayModeDetector.detect(for: selectedScreen)
+            if vm.isFloatingTab {
+                vm.notchSize = FloatingTabConstants.collapsedSize
+            } else {
+                vm.notchSize = getClosedNotchSize(screenUUID: selectedScreen.displayUUID)
+            }
 
             if window == nil {
                 window = createBoringNotchWindow(for: selectedScreen, with: vm)
@@ -601,6 +619,7 @@ extension Notification.Name {
     static let showOnAllDisplaysChanged = Notification.Name("showOnAllDisplaysChanged")
     static let automaticallySwitchDisplayChanged = Notification.Name("automaticallySwitchDisplayChanged")
     static let expandedDragDetectionChanged = Notification.Name("expandedDragDetectionChanged")
+    static let displayModeOverrideChanged = Notification.Name("displayModeOverrideChanged")
 }
 
 extension CGRect: @retroactive Hashable {

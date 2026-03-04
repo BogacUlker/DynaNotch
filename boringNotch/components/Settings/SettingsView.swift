@@ -147,6 +147,7 @@ struct GeneralSettings: View {
     @Default(.automaticallySwitchDisplay) var automaticallySwitchDisplay
     @Default(.enableGestures) var enableGestures
     @Default(.openNotchOnHover) var openNotchOnHover
+    @Default(.displayModeOverride) var displayModeOverride
     
 
     var body: some View {
@@ -188,6 +189,16 @@ struct GeneralSettings: View {
                             name: Notification.Name.automaticallySwitchDisplayChanged, object: nil)
                     }
                     .disabled(showOnAllDisplays)
+
+                Picker("Display mode", selection: $displayModeOverride) {
+                    ForEach(DisplayModeOverride.allCases) { mode in
+                        Text(mode.displayName).tag(mode)
+                    }
+                }
+                .onChange(of: displayModeOverride) {
+                    NotificationCenter.default.post(
+                        name: Notification.Name.displayModeOverrideChanged, object: nil)
+                }
             } header: {
                 Text("System features")
             }

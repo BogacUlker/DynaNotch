@@ -58,6 +58,17 @@ struct ContentView: View {
         )
     }
 
+    private var currentClipShape: AdaptiveNotchShape {
+        AdaptiveNotchShape(
+            isFloatingTab: vm.isFloatingTab,
+            isExpanded: vm.notchState == .open,
+            topCornerRadius: topCornerRadius,
+            bottomCornerRadius: ((vm.notchState == .open) && Defaults[.cornerRadiusScaling])
+                ? cornerRadiusInsets.opened.bottom
+                : cornerRadiusInsets.closed.bottom
+        )
+    }
+
     private var computedChinWidth: CGFloat {
         var chinWidth: CGFloat = vm.closedNotchSize.width
 
@@ -101,12 +112,14 @@ struct ContentView: View {
                     )
                     .padding([.horizontal, .bottom], vm.notchState == .open ? 12 : 0)
                     .background(.black)
-                    .clipShape(currentNotchShape)
+                    .clipShape(currentClipShape)
                     .overlay(alignment: .top) {
-                        Rectangle()
-                            .fill(.black)
-                            .frame(height: 1)
-                            .padding(.horizontal, topCornerRadius)
+                        if !vm.isFloatingTab {
+                            Rectangle()
+                                .fill(.black)
+                                .frame(height: 1)
+                                .padding(.horizontal, topCornerRadius)
+                        }
                     }
                     .shadow(
                         color: ((vm.notchState == .open || isHovering) && Defaults[.enableShadow])
@@ -179,6 +192,20 @@ struct ContentView: View {
                                     }
                                 }
                             }
+                        }
+                    }
+                    .onChange(of: coordinator.sneakPeek.show) { _, show in
+                        if show && vm.isFloatingTab && vm.notchState == .closed {
+                            // Auto-expand floating tab for HUD events (volume, brightness)
+                            if coordinator.sneakPeek.type != .music {
+                                doOpen()
+                            }
+                        }
+                    }
+                    .onChange(of: coordinator.expandingView.show) { _, show in
+                        if show && vm.isFloatingTab && vm.notchState == .closed {
+                            // Auto-expand floating tab for battery/expanding view events
+                            doOpen()
                         }
                     }
                     .sensoryFeedback(.alignment, trigger: haptics)
@@ -255,7 +282,16 @@ struct ContentView: View {
                     .padding(.top, 40)
                     Spacer()
                 } else {
-                    if coordinator.expandingView.type == .battery && coordinator.expandingView.show
+                    if vm.isFloatingTab && vm.notchState == .closed
+                        && !coordinator.sneakPeek.show
+                        && !(coordinator.expandingView.type == .battery && coordinator.expandingView.show) {
+                        // Floating tab collapsed pill — thin black bar
+                        Color.black
+                            .frame(
+                                width: FloatingTabConstants.collapsedSize.width,
+                                height: FloatingTabConstants.collapsedSize.height
+                            )
+                    } else if coordinator.expandingView.type == .battery && coordinator.expandingView.show
                         && vm.notchState == .closed && Defaults[.showPowerStatusNotifications]
                     {
                         HStack(spacing: 0) {

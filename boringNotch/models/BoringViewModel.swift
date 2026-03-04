@@ -18,6 +18,11 @@ class BoringViewModel: NSObject, ObservableObject {
 
     @Published var contentType: ContentType = .normal
     @Published private(set) var notchState: NotchState = .closed
+    @Published var displayMode: NotchDisplayMode = .physicalNotch
+
+    var isFloatingTab: Bool {
+        displayMode == .floatingTab
+    }
 
     @Published var dragDetectorTargeting: Bool = false
     @Published var generalDropTargeting: Bool = false
@@ -56,8 +61,15 @@ class BoringViewModel: NSObject, ObservableObject {
         super.init()
         
         self.screenUUID = screenUUID
-        notchSize = getClosedNotchSize(screenUUID: screenUUID)
-        closedNotchSize = notchSize
+        self.displayMode = DisplayModeDetector.detect(forScreenUUID: screenUUID)
+
+        if isFloatingTab {
+            notchSize = FloatingTabConstants.collapsedSize
+            closedNotchSize = notchSize
+        } else {
+            notchSize = getClosedNotchSize(screenUUID: screenUUID)
+            closedNotchSize = notchSize
+        }
 
         Publishers.CombineLatest3($dropZoneTargeting, $dragDetectorTargeting, $generalDropTargeting)
             .map { shelf, drag, general in
@@ -104,12 +116,17 @@ class BoringViewModel: NSObject, ObservableObject {
 
     // Computed property for effective notch height
     var effectiveClosedNotchHeight: CGFloat {
+        if isFloatingTab && notchState == .closed {
+            return FloatingTabConstants.collapsedSize.height
+        }
         let currentScreen = screenUUID.flatMap { NSScreen.screen(withUUID: $0) }
         let noNotchAndFullscreen = hideOnClosed && (currentScreen?.safeAreaInsets.top ?? 0 <= 0 || currentScreen == nil)
         return noNotchAndFullscreen ? 0 : closedNotchSize.height
     }
 
     var chinHeight: CGFloat {
+        if isFloatingTab { return 0 }
+
         if !Defaults[.hideTitleBar] {
             return 0
         }
@@ -202,7 +219,11 @@ class BoringViewModel: NSObject, ObservableObject {
         if SharingStateManager.shared.preventNotchClose {
             return
         }
-        self.notchSize = getClosedNotchSize(screenUUID: self.screenUUID)
+        if isFloatingTab {
+            self.notchSize = FloatingTabConstants.collapsedSize
+        } else {
+            self.notchSize = getClosedNotchSize(screenUUID: self.screenUUID)
+        }
         self.closedNotchSize = self.notchSize
         self.notchState = .closed
         self.isBatteryPopoverActive = false

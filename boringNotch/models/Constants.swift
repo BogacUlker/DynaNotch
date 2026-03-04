@@ -199,4 +199,7 @@ extension Defaults.Keys {
     }
 
     static let didClearLegacyURLCacheV1 = Key<Bool>("didClearLegacyURLCache_v1", default: false)
+
+    // MARK: Display Mode
+    static let displayModeOverride = Key<DisplayModeOverride>("displayModeOverride", default: .automatic)
 }

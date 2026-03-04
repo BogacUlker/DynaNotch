@@ -143,6 +143,9 @@
 		B1F747F92EC7E94000F841DB /* LottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1F747F82EC7E94000F841DB /* LottieView.swift */; };
 		B1FEB4992C7686630066EBBC /* PanGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1FEB4982C7686630066EBBC /* PanGesture.swift */; };
 		F38DE6482D8243E7008B5C6D /* BatteryActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38DE6472D8243E2008B5C6D /* BatteryActivityManager.swift */; };
+		525F13C294E8436C9CD4007B /* NotchDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8652807D6F5043BE8E151BF0 /* NotchDisplayMode.swift */; };
+		B8C311C0F8AC4B1FA2980383 /* FloatingTabConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 596C8EECC15240A1A70316DC /* FloatingTabConstants.swift */; };
+		D29C043109C6470994315D4A /* AdaptiveNotchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94CDF7032C743ACAA9D5F74 /* AdaptiveNotchShape.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -309,6 +312,9 @@
 		B1F747F82EC7E94000F841DB /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
 		B1FEB4982C7686630066EBBC /* PanGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanGesture.swift; sourceTree = "<group>"; };
 		F38DE6472D8243E2008B5C6D /* BatteryActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryActivityManager.swift; sourceTree = "<group>"; };
+		8652807D6F5043BE8E151BF0 /* NotchDisplayMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotchDisplayMode.swift; sourceTree = "<group>"; };
+		596C8EECC15240A1A70316DC /* FloatingTabConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingTabConstants.swift; sourceTree = "<group>"; };
+		B94CDF7032C743ACAA9D5F74 /* AdaptiveNotchShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveNotchShape.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -584,6 +590,7 @@
 				14CEF41B2C5CAED400855D72 /* Preview Content */,
 				112FB72F2CCF12CC0015238C /* private */,
 				11CC44A12CEE614100C7244B /* BoringViewCoordinator.swift */,
+				A2681F93691849099A653A5D /* Core */,
 			);
 			path = boringNotch;
 			sourceTree = "<group>";
@@ -755,6 +762,24 @@
 				B1C4489A2C97376A001F0858 /* TipStore.swift */,
 			);
 			path = Tips;
+			sourceTree = "<group>";
+		};
+		A417D5A6356B4C3F96FCE12B /* FloatingTab */ = {
+			isa = PBXGroup;
+			children = (
+				8652807D6F5043BE8E151BF0 /* NotchDisplayMode.swift */,
+				596C8EECC15240A1A70316DC /* FloatingTabConstants.swift */,
+				B94CDF7032C743ACAA9D5F74 /* AdaptiveNotchShape.swift */,
+			);
+			path = FloatingTab;
+			sourceTree = "<group>";
+		};
+		A2681F93691849099A653A5D /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				A417D5A6356B4C3F96FCE12B /* FloatingTab */,
+			);
+			path = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -949,6 +974,9 @@
 				1100292E2E86940F00035A57 /* QuickShareService.swift in Sources */,
 				1113ABCE2E80E27000EC13B2 /* ShelfActionService.swift in Sources */,
 				1160F8D82DD98230006FBB94 /* NotchShape.swift in Sources */,
+				525F13C294E8436C9CD4007B /* NotchDisplayMode.swift in Sources */,
+				B8C311C0F8AC4B1FA2980383 /* FloatingTabConstants.swift in Sources */,
+				D29C043109C6470994315D4A /* AdaptiveNotchShape.swift in Sources */,
 				5917FD112E57891600E87F1C /* MediaKeyInterceptor.swift in Sources */,
 				14C08BC12C8E03AD000F8AA0 /* NSImage+Extensions.swift in Sources */,
 				149E0B9A2C737D40006418B1 /* WebcamView.swift in Sources */,
