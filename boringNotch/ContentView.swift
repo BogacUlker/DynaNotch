@@ -589,24 +589,56 @@ struct ContentView: View {
 
     @ViewBuilder
     func SystemMonitorLiveActivity() -> some View {
-        HStack {
-            // Left: CPU percentage
-            Text("\(Int(systemMonitorManager.cpuUsage))%")
-                .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                .foregroundColor(systemMonitorManager.cpuUsage < 50 ? .green : systemMonitorManager.cpuUsage < 80 ? .orange : .red)
-                .fixedSize()
+        let cpuPercent = systemMonitorManager.cpuUsage
+        let ramPercent = systemMonitorManager.ramUsagePercent
+        let cpuColor: Color = cpuPercent < 50 ? .green : cpuPercent < 80 ? .orange : .red
+        let ramColor: Color = ramPercent < 60 ? .cyan : ramPercent < 85 ? .orange : .red
+        let ringSize = max(0, vm.effectiveClosedNotchHeight - 12)
+
+        HStack(spacing: 0) {
+            // Left: CPU mini ring + percentage
+            HStack(spacing: 3) {
+                ZStack {
+                    Circle()
+                        .stroke(cpuColor.opacity(0.2), lineWidth: 1.5)
+                    Circle()
+                        .trim(from: 0, to: min(cpuPercent / 100.0, 1.0))
+                        .stroke(cpuColor, style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .animation(.easeInOut(duration: 0.6), value: cpuPercent)
+                }
+                .frame(width: ringSize, height: ringSize)
+
+                Text("\(Int(cpuPercent))")
+                    .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                    .foregroundColor(cpuColor)
+                    .fixedSize()
+            }
 
             // Center: notch gap
             Rectangle()
                 .fill(.black)
                 .frame(width: vm.closedNotchSize.width + 10)
 
-            // Right: RAM percentage
-            Text("\(Int(systemMonitorManager.ramUsagePercent))%")
-                .font(.system(size: 9, weight: .semibold, design: .monospaced))
-                .foregroundColor(systemMonitorManager.ramUsagePercent < 60 ? .cyan : systemMonitorManager.ramUsagePercent < 85 ? .orange : .red)
-                .fixedSize()
-                .padding(.trailing, 4)
+            // Right: RAM mini ring + percentage
+            HStack(spacing: 3) {
+                Text("\(Int(ramPercent))")
+                    .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                    .foregroundColor(ramColor)
+                    .fixedSize()
+
+                ZStack {
+                    Circle()
+                        .stroke(ramColor.opacity(0.2), lineWidth: 1.5)
+                    Circle()
+                        .trim(from: 0, to: min(ramPercent / 100.0, 1.0))
+                        .stroke(ramColor, style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .animation(.easeInOut(duration: 0.6), value: ramPercent)
+                }
+                .frame(width: ringSize, height: ringSize)
+            }
+            .padding(.trailing, 2)
         }
         .frame(
             height: vm.effectiveClosedNotchHeight,
