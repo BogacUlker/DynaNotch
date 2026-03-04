@@ -153,6 +153,10 @@
 		BB1000020000000100000002 /* PomodoroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2000020000000100000002 /* PomodoroView.swift */; };
 		CC1000010000000100000001 /* SystemMonitorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2000010000000100000001 /* SystemMonitorManager.swift */; };
 		CC1000020000000100000002 /* SystemMonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC2000020000000100000002 /* SystemMonitorView.swift */; };
+		DD1000010000000100000001 /* QuickNotesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2000010000000100000001 /* QuickNotesManager.swift */; };
+		DD1000020000000100000002 /* QuickNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2000020000000100000002 /* QuickNotesView.swift */; };
+		EE1000010000000100000001 /* WeatherManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2000010000000100000001 /* WeatherManager.swift */; };
+		EE1000020000000100000002 /* WeatherHeaderWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2000020000000100000002 /* WeatherHeaderWidget.swift */; };
 		D29C043109C6470994315D4A /* AdaptiveNotchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94CDF7032C743ACAA9D5F74 /* AdaptiveNotchShape.swift */; };
 		F38DE6482D8243E7008B5C6D /* BatteryActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38DE6472D8243E2008B5C6D /* BatteryActivityManager.swift */; };
 /* End PBXBuildFile section */
@@ -332,6 +336,10 @@
 		BB2000020000000100000002 /* PomodoroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroView.swift; sourceTree = "<group>"; };
 		CC2000010000000100000001 /* SystemMonitorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorManager.swift; sourceTree = "<group>"; };
 		CC2000020000000100000002 /* SystemMonitorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorView.swift; sourceTree = "<group>"; };
+		DD2000010000000100000001 /* QuickNotesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickNotesManager.swift; sourceTree = "<group>"; };
+		DD2000020000000100000002 /* QuickNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickNotesView.swift; sourceTree = "<group>"; };
+		EE2000010000000100000001 /* WeatherManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherManager.swift; sourceTree = "<group>"; };
+		EE2000020000000100000002 /* WeatherHeaderWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherHeaderWidget.swift; sourceTree = "<group>"; };
 		F38DE6472D8243E2008B5C6D /* BatteryActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryActivityManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -708,6 +716,8 @@
 				AA3000020000000100000002 /* Lyrics */,
 				BB3000010000000100000001 /* Pomodoro */,
 				CC3000010000000100000001 /* SystemMonitor */,
+				DD3000010000000100000001 /* QuickNotes */,
+				EE3000010000000100000001 /* Weather */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -839,6 +849,24 @@
 				CC2000020000000100000002 /* SystemMonitorView.swift */,
 			);
 			path = SystemMonitor;
+			sourceTree = "<group>";
+		};
+		DD3000010000000100000001 /* QuickNotes */ = {
+			isa = PBXGroup;
+			children = (
+				DD2000010000000100000001 /* QuickNotesManager.swift */,
+				DD2000020000000100000002 /* QuickNotesView.swift */,
+			);
+			path = QuickNotes;
+			sourceTree = "<group>";
+		};
+		EE3000010000000100000001 /* Weather */ = {
+			isa = PBXGroup;
+			children = (
+				EE2000010000000100000001 /* WeatherManager.swift */,
+				EE2000020000000100000002 /* WeatherHeaderWidget.swift */,
+			);
+			path = Weather;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1045,6 +1073,10 @@
 				BB1000020000000100000002 /* PomodoroView.swift in Sources */,
 				CC1000010000000100000001 /* SystemMonitorManager.swift in Sources */,
 				CC1000020000000100000002 /* SystemMonitorView.swift in Sources */,
+				DD1000010000000100000001 /* QuickNotesManager.swift in Sources */,
+				DD1000020000000100000002 /* QuickNotesView.swift in Sources */,
+				EE1000010000000100000001 /* WeatherManager.swift in Sources */,
+				EE1000020000000100000002 /* WeatherHeaderWidget.swift in Sources */,
 				5917FD112E57891600E87F1C /* MediaKeyInterceptor.swift in Sources */,
 				14C08BC12C8E03AD000F8AA0 /* NSImage+Extensions.swift in Sources */,
 				149E0B9A2C737D40006418B1 /* WebcamView.swift in Sources */,

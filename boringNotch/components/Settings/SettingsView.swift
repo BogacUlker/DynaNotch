@@ -57,6 +57,12 @@ struct SettingsView: View {
                 NavigationLink(value: "Lyrics") {
                     Label("Lyrics", systemImage: "music.note.list")
                 }
+                NavigationLink(value: "QuickNotes") {
+                    Label("Quick Notes", systemImage: "note.text")
+                }
+                NavigationLink(value: "Weather") {
+                    Label("Weather", systemImage: "cloud.sun")
+                }
                 NavigationLink(value: "Shelf") {
                     Label("Shelf", systemImage: "books.vertical")
                 }
@@ -98,6 +104,10 @@ struct SettingsView: View {
                     SystemMonitorSettings()
                 case "Lyrics":
                     LyricsSettings()
+                case "QuickNotes":
+                    QuickNotesSettings()
+                case "Weather":
+                    WeatherSettings()
                 case "Shelf":
                     Shelf()
                 case "Shortcuts":
@@ -1978,6 +1988,56 @@ struct LyricsSettings: View {
         }
         .accentColor(.effectiveAccent)
         .navigationTitle("Lyrics")
+    }
+}
+
+// MARK: - Quick Notes Settings
+
+struct QuickNotesSettings: View {
+    var body: some View {
+        Form {
+            Section {
+                Defaults.Toggle(key: .enableQuickNotes) {
+                    Text("Enable Quick Notes")
+                }
+            } header: {
+                Text("General")
+            }
+        }
+        .accentColor(.effectiveAccent)
+        .navigationTitle("Quick Notes")
+    }
+}
+
+// MARK: - Weather Settings
+
+struct WeatherSettings: View {
+    @Default(.temperatureUnit) var temperatureUnit
+    @Default(.weatherManualCity) var manualCity
+
+    var body: some View {
+        Form {
+            Section {
+                Defaults.Toggle(key: .enableWeather) {
+                    Text("Enable Weather")
+                }
+            } header: {
+                Text("General")
+            }
+
+            Section {
+                Picker("Temperature unit", selection: $temperatureUnit) {
+                    Text("Celsius (°C)").tag("celsius")
+                    Text("Fahrenheit (°F)").tag("fahrenheit")
+                }
+
+                TextField("Manual city (leave empty for auto-location)", text: $manualCity)
+            } header: {
+                Text("Display")
+            }
+        }
+        .accentColor(.effectiveAccent)
+        .navigationTitle("Weather")
     }
 }
 

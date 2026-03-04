@@ -25,6 +25,8 @@ struct ContentView: View {
     @ObservedObject var volumeManager = VolumeManager.shared
     @ObservedObject var pomodoroManager = PomodoroManager.shared
     @ObservedObject var systemMonitorManager = SystemMonitorManager.shared
+    @ObservedObject var quickNotesManager = QuickNotesManager.shared
+    @ObservedObject var weatherManager = WeatherManager.shared
     @State private var hoverTask: Task<Void, Never>?
     @State private var isHovering: Bool = false
     @State private var anyDropDebounceTask: Task<Void, Never>?
@@ -89,6 +91,17 @@ struct ContentView: View {
             chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
         } else if !coordinator.expandingView.show && vm.notchState == .closed
             && pomodoroManager.timerState == .idle && systemMonitorManager.isActive && !vm.hideOnClosed
+        {
+            chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
+        } else if !coordinator.expandingView.show && vm.notchState == .closed
+            && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive
+            && quickNotesManager.isActive && !quickNotesManager.notes.isEmpty && !vm.hideOnClosed
+        {
+            chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
+        } else if !coordinator.expandingView.show && vm.notchState == .closed
+            && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive
+            && (quickNotesManager.notes.isEmpty || !quickNotesManager.isActive)
+            && weatherManager.isActive && weatherManager.temperature != nil && !vm.hideOnClosed
         {
             chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
         } else if !coordinator.expandingView.show && vm.notchState == .closed
@@ -189,6 +202,10 @@ struct ContentView: View {
                                 isHovering = false
                             }
                         }
+                        updateWindowKeyFocus()
+                    }
+                    .onChange(of: coordinator.currentView) { _, _ in
+                        updateWindowKeyFocus()
                     }
                     .onChange(of: vm.isBatteryPopoverActive) {
                         if !vm.isBatteryPopoverActive && !isHovering && vm.notchState == .open && !SharingStateManager.shared.preventNotchClose {
@@ -340,6 +357,12 @@ struct ContentView: View {
                       } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && systemMonitorManager.isActive && !vm.hideOnClosed {
                           SystemMonitorLiveActivity()
                               .frame(alignment: .center)
+                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive && quickNotesManager.isActive && !quickNotesManager.notes.isEmpty && !vm.hideOnClosed {
+                          QuickNotesLiveActivity()
+                              .frame(alignment: .center)
+                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive && (quickNotesManager.notes.isEmpty || !quickNotesManager.isActive) && weatherManager.isActive && weatherManager.temperature != nil && !vm.hideOnClosed {
+                          WeatherLiveActivity()
+                              .frame(alignment: .center)
                       } else if !coordinator.expandingView.show && vm.notchState == .closed && (!musicManager.isPlaying && musicManager.isPlayerIdle) && Defaults[.showNotHumanFace] && !vm.hideOnClosed  {
                           BoringFaceAnimation()
                        } else if vm.notchState == .open {
@@ -403,6 +426,8 @@ struct ContentView: View {
                         PomodoroView()
                     case .systemMonitor:
                         SystemMonitorView()
+                    case .quickNotes:
+                        QuickNotesView()
                     }
                 }
                 .transition(
@@ -647,6 +672,67 @@ struct ContentView: View {
     }
 
     @ViewBuilder
+    func QuickNotesLiveActivity() -> some View {
+        HStack {
+            // Left: note icon
+            Image(systemName: "note.text")
+                .font(.system(size: max(0, vm.effectiveClosedNotchHeight - 18)))
+                .foregroundColor(.yellow)
+                .frame(
+                    width: max(0, vm.effectiveClosedNotchHeight - 12),
+                    height: max(0, vm.effectiveClosedNotchHeight - 12)
+                )
+
+            // Center: notch gap
+            Rectangle()
+                .fill(.black)
+                .frame(width: vm.closedNotchSize.width + 10)
+
+            // Right: preview text
+            Text(quickNotesManager.mostRecentPreview)
+                .font(.system(size: 9, weight: .medium))
+                .foregroundColor(.gray)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.trailing, 4)
+        }
+        .frame(
+            height: vm.effectiveClosedNotchHeight,
+            alignment: .center
+        )
+    }
+
+    @ViewBuilder
+    func WeatherLiveActivity() -> some View {
+        HStack {
+            // Left: weather emoji
+            Text(weatherManager.weatherEmoji)
+                .font(.system(size: max(0, vm.effectiveClosedNotchHeight - 18)))
+                .frame(
+                    width: max(0, vm.effectiveClosedNotchHeight - 12),
+                    height: max(0, vm.effectiveClosedNotchHeight - 12)
+                )
+
+            // Center: notch gap
+            Rectangle()
+                .fill(.black)
+                .frame(width: vm.closedNotchSize.width + 10)
+
+            // Right: temperature
+            Text(weatherManager.temperatureDisplay)
+                .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                .foregroundColor(.cyan)
+                .fixedSize()
+                .padding(.trailing, 4)
+        }
+        .frame(
+            height: vm.effectiveClosedNotchHeight,
+            alignment: .center
+        )
+    }
+
+    @ViewBuilder
     var dragDetector: some View {
         if Defaults[.boringShelf] && vm.notchState == .closed {
             Color.clear
@@ -659,6 +745,18 @@ struct ContentView: View {
         }
         } else {
             EmptyView()
+        }
+    }
+
+    private func updateWindowKeyFocus() {
+        let needs = vm.notchState == .open && coordinator.currentView == .quickNotes
+        if let window = NSApp.windows.first(where: { $0 is BoringNotchSkyLightWindow }) as? BoringNotchSkyLightWindow {
+            window.needsKeyFocus = needs
+            if needs {
+                window.makeKey()
+            } else if window.isKeyWindow {
+                window.resignKey()
+            }
         }
     }
 

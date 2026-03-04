@@ -8,6 +8,10 @@
 import Cocoa
 
 class BoringNotchWindow: NSPanel {
+
+    /// When true the panel can become key so that TextFields receive input.
+    var needsKeyFocus: Bool = false
+
     override init(
         contentRect: NSRect,
         styleMask: NSWindow.StyleMask,
@@ -20,30 +24,30 @@ class BoringNotchWindow: NSPanel {
             backing: backing,
             defer: flag
         )
-        
+
         isFloatingPanel = true
         isOpaque = false
         titleVisibility = .hidden
         titlebarAppearsTransparent = true
         backgroundColor = .clear
         isMovable = false
-        
+
         collectionBehavior = [
             .fullScreenAuxiliary,
             .stationary,
             .canJoinAllSpaces,
             .ignoresCycle,
         ]
-        
+
         isReleasedWhenClosed = false
         level = .mainMenu + 3
         hasShadow = false
     }
-    
+
     override var canBecomeKey: Bool {
-        false
+        needsKeyFocus
     }
-    
+
     override var canBecomeMain: Bool {
         false
     }

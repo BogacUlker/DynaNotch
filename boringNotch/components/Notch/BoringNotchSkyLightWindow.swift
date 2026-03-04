@@ -109,6 +109,9 @@ class BoringNotchSkyLightWindow: NSPanel {
     
     private var observers: Set<AnyCancellable> = []
     
-    override var canBecomeKey: Bool { false }
+    /// When true the panel can become key so that TextFields receive keyboard input.
+    var needsKeyFocus: Bool = false
+
+    override var canBecomeKey: Bool { needsKeyFocus }
     override var canBecomeMain: Bool { false }
 }

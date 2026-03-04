@@ -52,6 +52,18 @@ enum MediaControllerType: String, CaseIterable, Identifiable, Defaults.Serializa
 }
 
 // Sneak peek styles for selection in settings
+struct QuickNote: Codable, Hashable, Equatable, Defaults.Serializable {
+    let id: UUID
+    var content: String
+    var createdAt: Date
+
+    init(content: String) {
+        self.id = UUID()
+        self.content = content
+        self.createdAt = Date()
+    }
+}
+
 enum SneakPeekStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
     case standard = "Default"
     case inline = "Inline"
@@ -217,6 +229,15 @@ extension Defaults.Keys {
     }
 
     static let didClearLegacyURLCacheV1 = Key<Bool>("didClearLegacyURLCache_v1", default: false)
+
+    // MARK: Quick Notes
+    static let enableQuickNotes = Key<Bool>("enableQuickNotes", default: true)
+    static let quickNotes = Key<[QuickNote]>("quickNotes", default: [])
+
+    // MARK: Weather
+    static let enableWeather = Key<Bool>("enableWeather", default: false)
+    static let temperatureUnit = Key<String>("temperatureUnit", default: "celsius")
+    static let weatherManualCity = Key<String>("weatherManualCity", default: "")
 
     // MARK: Display Mode
     static let displayModeOverride = Key<DisplayModeOverride>("displayModeOverride", default: .automatic)
