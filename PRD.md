@@ -1,6 +1,6 @@
-# PRD v2 — DynamicNotch (Boring.Notch Fork)
+# PRD v2 — DynaNotch (Boring.Notch Fork)
 
-**Proje Adı:** DynamicNotch  
+**Proje Adı:** DynaNotch  
 **Base:** Boring.Notch fork (GPL v3)  
 **Versiyon:** 2.0.0  
 **Yazar:** Boğaç  
@@ -12,12 +12,12 @@
 
 ## 1. Vizyon ve Özet
 
-DynamicNotch, Boring.Notch'un açık kaynak code base'i üzerine inşa edilen, **plugin mimarisi**, **external ekran desteği**, **canlı şarkı sözleri**, **akıllı bildirimler**, **Apple Shortcuts entegrasyonu** ve **AI asistan** gibi özgün özelliklerle genişletilmiş bir macOS notch uygulamasıdır.
+DynaNotch, Boring.Notch'un açık kaynak code base'i üzerine inşa edilen, **plugin mimarisi**, **external ekran desteği**, **canlı şarkı sözleri**, **akıllı bildirimler**, **Apple Shortcuts entegrasyonu** ve **AI asistan** gibi özgün özelliklerle genişletilmiş bir macOS notch uygulamasıdır.
 
 Boring.Notch'un olgun medya kontrolleri, file shelf, HUD replacer gibi temel özelliklerini koruyarak, üzerine hiçbir rakibin sunmadığı özellikleri ekleyerek **notch'u bir platforma** dönüştürmeyi hedefliyoruz.
 
 ### Temel Fark: Platform Yaklaşımı
-Mevcut notch uygulamaları (Boring.Notch, Atoll, Alcove) kapalı sistemler — yalnızca kendi built-in özelliklerini sunarlar. DynamicNotch, açık bir plugin protokolü ile üçüncü parti uygulamaların notch'a veri göndermesine ve widget göstermesine olanak tanıyacak. Bu sayede:
+Mevcut notch uygulamaları (Boring.Notch, Atoll, Alcove) kapalı sistemler — yalnızca kendi built-in özelliklerini sunarlar. DynaNotch, açık bir plugin protokolü ile üçüncü parti uygulamaların notch'a veri göndermesine ve widget göstermesine olanak tanıyacak. Bu sayede:
 - Arkadaşın canlı skor app'i → notch'ta maç widget'ı
 - Herhangi bir geliştirici hava durumu app'i yapar → notch'ta hava widget'ı
 - Kripto tracker → notch'ta fiyat ticker
@@ -205,7 +205,7 @@ boring.notch (mevcut code base)
 │   ├── HUD Replacer + Clipboard
 │   └── Simulated Notch (notch'suz Mac)
 │
-└── DynamicNotch Eklentileri (yeni)
+└── DynaNotch Eklentileri (yeni)
     ├── Core/
     │   ├── FloatingTab/              # External ekran floating tab modu
     │   │   ├── FloatingTabController.swift
@@ -269,7 +269,7 @@ protocol NotchPlugin: Identifiable {
 
 // Harici app'lerden veri almak için
 protocol ExternalDataProvider {
-    var scheme: String { get }                   // URL scheme: "dynamicnotch://plugin/livescore"
+    var scheme: String { get }                   // URL scheme: "dynanotch://plugin/livescore"
     func handleIncomingData(_ data: Data)
 }
 ```
@@ -279,15 +279,15 @@ protocol ExternalDataProvider {
 ```
 Arkadaşın Live Score App
     │
-    ├── URL Scheme: dynamicnotch://plugin/livescore?data={json}
+    ├── URL Scheme: dynanotch://plugin/livescore?data={json}
     │   veya
     ├── Local WebSocket: ws://localhost:9876/livescore
     │   veya
-    └── Shared App Group: group.com.dynamicnotch.plugins
+    └── Shared App Group: group.com.dynanotch.plugins
     
     ↓
     
-DynamicNotch Plugin System
+DynaNotch Plugin System
     ├── PluginIPC alır → LiveScorePlugin'e yönlendirir
     └── LiveScorePlugin → NotchWidget'ta gösterir
         ├── Takım logoları (küçük, 24x24)

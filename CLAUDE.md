@@ -1,4 +1,4 @@
-# CLAUDE.md — DynamicNotch (Boring.Notch Fork)
+# CLAUDE.md — DynaNotch (Boring.Notch Fork)
 
 > Bu dosya, Claude Code'un bu fork ile çalışırken takip etmesi gereken kuralları tanımlar.
 
@@ -6,7 +6,7 @@
 
 ## Proje Özeti
 
-DynamicNotch, Boring.Notch'un GPL v3 fork'udur. Mevcut code base'i koruyarak üzerine external ekran desteği, canlı şarkı sözleri, Apple Shortcuts entegrasyonu, akıllı bildirimler, AI asistan ve plugin sistemi ekliyoruz.
+DynaNotch, Boring.Notch'un GPL v3 fork'udur. Mevcut code base'i koruyarak üzerine external ekran desteği, canlı şarkı sözleri, Apple Shortcuts entegrasyonu, akıllı bildirimler, AI asistan ve plugin sistemi ekliyoruz.
 
 ## Altın Kural
 
@@ -46,7 +46,7 @@ Tüm yeni özellikler şu dizinlere eklenir:
 - Mevcut logging pattern'ını takip et
 - Yeni modüllerde `os.Logger` kullan:
   ```swift
-  private let logger = Logger(subsystem: "com.dynamicnotch", category: "Lyrics")
+  private let logger = Logger(subsystem: "com.dynanotch", category: "Lyrics")
   ```
 
 ### Performans
@@ -99,9 +99,9 @@ protocol ExternalDataProvider {
     var scheme: String { get }
     func handleIncomingData(_ data: Data)
 }
-// URL scheme: dynamicnotch://plugin/{pluginId}?data={json}
+// URL scheme: dynanotch://plugin/{pluginId}?data={json}
 // Local WebSocket: ws://localhost:9876/{pluginId}
-// Shared App Group: group.com.dynamicnotch.plugins
+// Shared App Group: group.com.dynanotch.plugins
 ```
 
 ## Lyrics Modülü Kuralları
