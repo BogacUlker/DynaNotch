@@ -51,6 +51,9 @@ struct SettingsView: View {
                 NavigationLink(value: "Pomodoro") {
                     Label("Pomodoro", systemImage: "timer")
                 }
+                NavigationLink(value: "SystemMonitor") {
+                    Label("System Monitor", systemImage: "gauge.with.dots.needle.33percent")
+                }
                 NavigationLink(value: "Lyrics") {
                     Label("Lyrics", systemImage: "music.note.list")
                 }
@@ -91,6 +94,8 @@ struct SettingsView: View {
                     Charge()
                 case "Pomodoro":
                     PomodoroSettings()
+                case "SystemMonitor":
+                    SystemMonitorSettings()
                 case "Lyrics":
                     LyricsSettings()
                 case "Shelf":
@@ -1879,6 +1884,52 @@ struct PomodoroSettings: View {
         }
         .accentColor(.effectiveAccent)
         .navigationTitle("Pomodoro")
+    }
+}
+
+/// MARK: - System Monitor Settings
+
+struct SystemMonitorSettings: View {
+    var body: some View {
+        Form {
+            Section {
+                Defaults.Toggle(key: .enableSystemMonitor) {
+                    Text("Enable System Monitor")
+                }
+            } header: {
+                Text("General")
+            } footer: {
+                Text("When enabled, system metrics are collected every 2 seconds.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Defaults.Toggle(key: .showCPUUsage) {
+                    Text("CPU Usage")
+                }
+                Defaults.Toggle(key: .showRAMUsage) {
+                    Text("RAM Usage")
+                }
+                Defaults.Toggle(key: .showNetworkSpeed) {
+                    Text("Network Speed")
+                }
+                Defaults.Toggle(key: .showDiskUsage) {
+                    Text("Disk Usage")
+                }
+                Defaults.Toggle(key: .showCPUTemperature) {
+                    Text("CPU Temperature")
+                }
+            } header: {
+                Text("Metrics")
+            } footer: {
+                Text("CPU temperature requires SMC access and may not be available on all Macs.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .accentColor(.effectiveAccent)
+        .navigationTitle("System Monitor")
     }
 }
 

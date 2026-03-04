@@ -148,6 +148,14 @@ extension Defaults.Keys {
     static let pomodoroCyclesBeforeLongBreak = Key<Double>("pomodoroCyclesBeforeLongBreak", default: 4)
     static let pomodoroNotifications = Key<Bool>("pomodoroNotifications", default: true)
 
+    // MARK: System Monitor
+    static let enableSystemMonitor = Key<Bool>("enableSystemMonitor", default: false)
+    static let showCPUUsage = Key<Bool>("showCPUUsage", default: true)
+    static let showRAMUsage = Key<Bool>("showRAMUsage", default: true)
+    static let showNetworkSpeed = Key<Bool>("showNetworkSpeed", default: true)
+    static let showDiskUsage = Key<Bool>("showDiskUsage", default: true)
+    static let showCPUTemperature = Key<Bool>("showCPUTemperature", default: false)
+
     // MARK: Battery
     static let showPowerStatusNotifications = Key<Bool>("showPowerStatusNotifications", default: true)
     static let showBatteryIndicator = Key<Bool>("showBatteryIndicator", default: true)

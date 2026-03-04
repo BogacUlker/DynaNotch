@@ -24,6 +24,7 @@ struct ContentView: View {
     @ObservedObject var brightnessManager = BrightnessManager.shared
     @ObservedObject var volumeManager = VolumeManager.shared
     @ObservedObject var pomodoroManager = PomodoroManager.shared
+    @ObservedObject var systemMonitorManager = SystemMonitorManager.shared
     @State private var hoverTask: Task<Void, Never>?
     @State private var isHovering: Bool = false
     @State private var anyDropDebounceTask: Task<Void, Never>?
@@ -84,6 +85,10 @@ struct ContentView: View {
             chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
         } else if !coordinator.expandingView.show && vm.notchState == .closed
             && pomodoroManager.timerState != .idle && !vm.hideOnClosed
+        {
+            chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
+        } else if !coordinator.expandingView.show && vm.notchState == .closed
+            && pomodoroManager.timerState == .idle && systemMonitorManager.isActive && !vm.hideOnClosed
         {
             chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
         } else if !coordinator.expandingView.show && vm.notchState == .closed
@@ -332,6 +337,9 @@ struct ContentView: View {
                       } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState != .idle && !vm.hideOnClosed {
                           PomodoroLiveActivity()
                               .frame(alignment: .center)
+                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && systemMonitorManager.isActive && !vm.hideOnClosed {
+                          SystemMonitorLiveActivity()
+                              .frame(alignment: .center)
                       } else if !coordinator.expandingView.show && vm.notchState == .closed && (!musicManager.isPlaying && musicManager.isPlayerIdle) && Defaults[.showNotHumanFace] && !vm.hideOnClosed  {
                           BoringFaceAnimation()
                        } else if vm.notchState == .open {
@@ -393,6 +401,8 @@ struct ContentView: View {
                         ShelfView()
                     case .pomodoro:
                         PomodoroView()
+                    case .systemMonitor:
+                        SystemMonitorView()
                     }
                 }
                 .transition(
@@ -568,6 +578,33 @@ struct ContentView: View {
             Text(timeText)
                 .font(.system(size: 9, weight: .semibold, design: .monospaced))
                 .foregroundColor(pomodoroManager.timerState == .paused ? phaseColor.opacity(0.5) : phaseColor)
+                .fixedSize()
+                .padding(.trailing, 4)
+        }
+        .frame(
+            height: vm.effectiveClosedNotchHeight,
+            alignment: .center
+        )
+    }
+
+    @ViewBuilder
+    func SystemMonitorLiveActivity() -> some View {
+        HStack {
+            // Left: CPU percentage
+            Text("\(Int(systemMonitorManager.cpuUsage))%")
+                .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                .foregroundColor(systemMonitorManager.cpuUsage < 50 ? .green : systemMonitorManager.cpuUsage < 80 ? .orange : .red)
+                .fixedSize()
+
+            // Center: notch gap
+            Rectangle()
+                .fill(.black)
+                .frame(width: vm.closedNotchSize.width + 10)
+
+            // Right: RAM percentage
+            Text("\(Int(systemMonitorManager.ramUsagePercent))%")
+                .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                .foregroundColor(systemMonitorManager.ramUsagePercent < 60 ? .cyan : systemMonitorManager.ramUsagePercent < 85 ? .orange : .red)
                 .fixedSize()
                 .padding(.trailing, 4)
         }
