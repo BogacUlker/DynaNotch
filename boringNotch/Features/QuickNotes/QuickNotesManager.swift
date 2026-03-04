@@ -76,6 +76,10 @@ class QuickNotesManager: ObservableObject {
     // MARK: - Persistence
 
     private func persist() {
+        let maxCount = Defaults[.quickNotesMaxCount]
+        if notes.count > maxCount {
+            notes = Array(notes.prefix(maxCount))
+        }
         Defaults[.quickNotes] = notes
     }
 }

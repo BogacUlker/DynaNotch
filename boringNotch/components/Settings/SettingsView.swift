@@ -27,56 +27,77 @@ struct SettingsView: View {
     var body: some View {
         NavigationSplitView {
             List(selection: $selectedTab) {
-                NavigationLink(value: "General") {
-                    Label("General", systemImage: "gear")
+                Section {
+                    NavigationLink(value: "General") {
+                        Label("General", systemImage: "gear")
+                    }
+                    NavigationLink(value: "Appearance") {
+                        Label("Appearance", systemImage: "eye")
+                    }
+                    NavigationLink(value: "Advanced") {
+                        Label("Advanced", systemImage: "gearshape.2")
+                    }
+                } header: {
+                    Text("APP")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
-                NavigationLink(value: "Appearance") {
-                    Label("Appearance", systemImage: "eye")
+
+                Section {
+                    NavigationLink(value: "Media") {
+                        Label("Media", systemImage: "play.laptopcomputer")
+                    }
+                    NavigationLink(value: "Calendar") {
+                        Label("Calendar", systemImage: "calendar")
+                    }
+                    NavigationLink(value: "Lyrics") {
+                        Label("Lyrics", systemImage: "music.note.list")
+                    }
+                    NavigationLink(value: "Pomodoro") {
+                        Label("Pomodoro", systemImage: "timer")
+                    }
+                    NavigationLink(value: "QuickNotes") {
+                        Label("Quick Notes", systemImage: "note.text")
+                    }
+                    NavigationLink(value: "SystemMonitor") {
+                        Label("System Monitor", systemImage: "gauge.with.dots.needle.33percent")
+                    }
+                    NavigationLink(value: "Weather") {
+                        Label("Weather", systemImage: "cloud.sun")
+                    }
+                } header: {
+                    Text("FEATURES")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
-                NavigationLink(value: "Media") {
-                    Label("Media", systemImage: "play.laptopcomputer")
+
+                Section {
+                    NavigationLink(value: "HUD") {
+                        Label("HUDs", systemImage: "dial.medium.fill")
+                    }
+                    NavigationLink(value: "Battery") {
+                        Label("Battery", systemImage: "battery.100.bolt")
+                    }
+                    NavigationLink(value: "Shelf") {
+                        Label("Shelf", systemImage: "books.vertical")
+                    }
+                } header: {
+                    Text("SYSTEM")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
-                NavigationLink(value: "Calendar") {
-                    Label("Calendar", systemImage: "calendar")
-                }
-                NavigationLink(value: "HUD") {
-                    Label("HUDs", systemImage: "dial.medium.fill")
-                }
-                NavigationLink(value: "Battery") {
-                    Label("Battery", systemImage: "battery.100.bolt")
-                }
-//                NavigationLink(value: "Downloads") {
-//                    Label("Downloads", systemImage: "square.and.arrow.down")
-//                }
-                NavigationLink(value: "Pomodoro") {
-                    Label("Pomodoro", systemImage: "timer")
-                }
-                NavigationLink(value: "SystemMonitor") {
-                    Label("System Monitor", systemImage: "gauge.with.dots.needle.33percent")
-                }
-                NavigationLink(value: "Lyrics") {
-                    Label("Lyrics", systemImage: "music.note.list")
-                }
-                NavigationLink(value: "QuickNotes") {
-                    Label("Quick Notes", systemImage: "note.text")
-                }
-                NavigationLink(value: "Weather") {
-                    Label("Weather", systemImage: "cloud.sun")
-                }
-                NavigationLink(value: "Shelf") {
-                    Label("Shelf", systemImage: "books.vertical")
-                }
-                NavigationLink(value: "Shortcuts") {
-                    Label("Shortcuts", systemImage: "keyboard")
-                }
-                // NavigationLink(value: "Extensions") {
-                //     Label("Extensions", systemImage: "puzzlepiece.extension")
-                // }
-                NavigationLink(value: "Advanced") {
-                    Label("Advanced", systemImage: "gearshape.2")
-                }
-                NavigationLink(value: "About") {
-                    Label("About", systemImage: "info.circle")
+
+                Section {
+                    NavigationLink(value: "Shortcuts") {
+                        Label("Shortcuts", systemImage: "keyboard")
+                    }
+                    NavigationLink(value: "About") {
+                        Label("About", systemImage: "info.circle")
+                    }
+                } header: {
+                    Text("OTHER")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
             }
             .listStyle(SidebarListStyle())
@@ -904,7 +925,7 @@ struct About: View {
                 HStack(spacing: 30) {
                     Spacer(minLength: 0)
                     Button {
-                        if let url = URL(string: "https://github.com/TheBoredTeam/boring.notch") {
+                        if let url = URL(string: "https://github.com/BogacUlker/DynaNotch") {
                             NSWorkspace.shared.open(url)
                         }
                     } label: {
@@ -920,11 +941,30 @@ struct About: View {
                     Spacer(minLength: 0)
                 }
                 .buttonStyle(PlainButtonStyle())
+
+                Section {
+                    HStack {
+                        Text("Based on")
+                        Spacer()
+                        Button("Boring.Notch") {
+                            if let url = URL(string: "https://github.com/TheBoredTeam/boring.notch") {
+                                NSWorkspace.shared.open(url)
+                            }
+                        }
+                        .buttonStyle(.link)
+                    }
+                    Text("DynaNotch is a GPL v3 fork of Boring.Notch by TheBoredTeam.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } header: {
+                    Text("Attribution")
+                }
             }
             VStack(spacing: 0) {
                 Divider()
-                Text("Made with 🫶🏻 by not so boring not.people")
+                Text("DynaNotch — Based on Boring.Notch by TheBoredTeam")
                     .foregroundStyle(.secondary)
+                    .font(.caption)
                     .padding(.top, 5)
                     .padding(.bottom, 7)
                     .multilineTextAlignment(.center)
@@ -2000,6 +2040,7 @@ struct LyricsSettings: View {
 // MARK: - Quick Notes Settings
 
 struct QuickNotesSettings: View {
+    @Default(.quickNotesMaxCount) var maxCount
     var body: some View {
         Form {
             Section {
@@ -2008,6 +2049,22 @@ struct QuickNotesSettings: View {
                 }
             } header: {
                 Text("General")
+            }
+
+            Section {
+                Stepper(value: $maxCount, in: 10...200, step: 10) {
+                    HStack {
+                        Text("Maximum notes")
+                        Spacer()
+                        Text("\(maxCount)")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Defaults.Toggle(key: .quickNotesShowCollapsedPreview) {
+                    Text("Show preview when collapsed")
+                }
+            } header: {
+                Text("Display")
             }
         }
         .accentColor(.effectiveAccent)
@@ -2020,6 +2077,7 @@ struct QuickNotesSettings: View {
 struct WeatherSettings: View {
     @Default(.temperatureUnit) var temperatureUnit
     @Default(.weatherManualCity) var manualCity
+    @Default(.weatherUpdateInterval) var updateInterval
 
     var body: some View {
         Form {
@@ -2035,6 +2093,16 @@ struct WeatherSettings: View {
                 Picker("Temperature unit", selection: $temperatureUnit) {
                     Text("Celsius (°C)").tag("celsius")
                     Text("Fahrenheit (°F)").tag("fahrenheit")
+                }
+
+                Defaults.Toggle(key: .weatherShowHumidity) {
+                    Text("Show humidity")
+                }
+
+                Picker("Update interval", selection: $updateInterval) {
+                    Text("10 minutes").tag(10)
+                    Text("30 minutes").tag(30)
+                    Text("1 hour").tag(60)
                 }
 
                 TextField("Manual city (leave empty for auto-location)", text: $manualCity)

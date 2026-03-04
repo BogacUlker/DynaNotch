@@ -91,7 +91,7 @@ extension Defaults.Keys {
     static let menubarIcon = Key<Bool>("menubarIcon", default: true)
     static let showOnAllDisplays = Key<Bool>("showOnAllDisplays", default: false)
     static let automaticallySwitchDisplay = Key<Bool>("automaticallySwitchDisplay", default: true)
-    static let releaseName = Key<String>("releaseName", default: "Flying Rabbit 🐇🪽")
+    static let releaseName = Key<String>("releaseName", default: "DynaNotch")
     
     // MARK: Behavior
     static let minimumHoverDuration = Key<TimeInterval>("minimumHoverDuration", default: 0.3)
@@ -245,11 +245,15 @@ extension Defaults.Keys {
     // MARK: Quick Notes
     static let enableQuickNotes = Key<Bool>("enableQuickNotes", default: true)
     static let quickNotes = Key<[QuickNote]>("quickNotes", default: [])
+    static let quickNotesMaxCount = Key<Int>("quickNotesMaxCount", default: 50)
+    static let quickNotesShowCollapsedPreview = Key<Bool>("quickNotesShowCollapsedPreview", default: true)
 
     // MARK: Weather
     static let enableWeather = Key<Bool>("enableWeather", default: false)
     static let temperatureUnit = Key<String>("temperatureUnit", default: "celsius")
     static let weatherManualCity = Key<String>("weatherManualCity", default: "")
+    static let weatherUpdateInterval = Key<Int>("weatherUpdateInterval", default: 10)
+    static let weatherShowHumidity = Key<Bool>("weatherShowHumidity", default: false)
 
     // MARK: Display Mode
     static let displayModeOverride = Key<DisplayModeOverride>("displayModeOverride", default: .automatic)

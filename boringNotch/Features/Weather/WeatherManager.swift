@@ -95,6 +95,22 @@ class WeatherManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             }
             .store(in: &cancellables)
 
+        // React to update interval changes — restart timer
+        Defaults.publisher(.weatherUpdateInterval)
+            .sink { [weak self] _ in
+                guard Defaults[.enableWeather] else { return }
+                self?.stopMonitoring()
+                self?.startMonitoring()
+            }
+            .store(in: &cancellables)
+
+        // React to humidity display toggle
+        Defaults.publisher(.weatherShowHumidity)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
         if Defaults[.enableWeather] {
             startMonitoring()
         }
@@ -112,9 +128,10 @@ class WeatherManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             geocodeCity(manualCity)
         }
 
-        // Fetch every 10 minutes
+        // Fetch at configured interval
         fetchTimer?.cancel()
-        fetchTimer = Timer.publish(every: 600, on: .main, in: .common)
+        let intervalMinutes = Defaults[.weatherUpdateInterval]
+        fetchTimer = Timer.publish(every: TimeInterval(intervalMinutes * 60), on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 self?.refreshWeather()

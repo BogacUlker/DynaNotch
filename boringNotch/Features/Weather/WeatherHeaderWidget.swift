@@ -21,6 +21,12 @@ struct WeatherHeaderWidget: View {
             Text(weatherManager.temperatureDisplay)
                 .font(.system(size: 9, weight: .medium, design: .monospaced))
                 .foregroundColor(.gray)
+
+            if Defaults[.weatherShowHumidity], let humidity = weatherManager.humidity {
+                Text("\(humidity)%")
+                    .font(.system(size: 8, weight: .medium, design: .monospaced))
+                    .foregroundColor(.gray.opacity(0.7))
+            }
         }
         .padding(.horizontal, 6)
         .padding(.vertical, 2)

@@ -354,10 +354,10 @@ struct ContentView: View {
                       } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && systemMonitorManager.isActive && !vm.hideOnClosed {
                           SystemMonitorLiveActivity()
                               .frame(alignment: .center)
-                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive && quickNotesManager.isActive && !quickNotesManager.notes.isEmpty && !vm.hideOnClosed {
+                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive && quickNotesManager.isActive && !quickNotesManager.notes.isEmpty && Defaults[.quickNotesShowCollapsedPreview] && !vm.hideOnClosed {
                           QuickNotesLiveActivity()
                               .frame(alignment: .center)
-                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive && (quickNotesManager.notes.isEmpty || !quickNotesManager.isActive) && weatherManager.isActive && weatherManager.temperature != nil && !vm.hideOnClosed {
+                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive && (!quickNotesManager.isActive || quickNotesManager.notes.isEmpty || !Defaults[.quickNotesShowCollapsedPreview]) && weatherManager.isActive && weatherManager.temperature != nil && !vm.hideOnClosed {
                           WeatherLiveActivity()
                               .frame(alignment: .center)
                       } else if !coordinator.expandingView.show && vm.notchState == .closed && (!musicManager.isPlaying && musicManager.isPlayerIdle) && Defaults[.showNotHumanFace] && !vm.hideOnClosed  {
