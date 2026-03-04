@@ -128,7 +128,7 @@ extension Defaults.Keys {
     static let sneakPeekStyles = Key<SneakPeekStyle>("sneakPeekStyles", default: .standard)
     static let waitInterval = Key<Double>("waitInterval", default: 3)
     static let showShuffleAndRepeat = Key<Bool>("showShuffleAndRepeat", default: false)
-    static let enableLyrics = Key<Bool>("enableLyrics", default: false)
+    static let enableLyrics = Key<Bool>("enableLyrics", default: true)
     static let lyricsDisplayMode = Key<LyricsDisplayMode>("lyricsDisplayMode", default: .compact)
     static let lyricsFontSize = Key<CGFloat>("lyricsFontSize", default: 13)
     static let musicControlSlots = Key<[MusicControlButton]>(
@@ -140,6 +140,13 @@ extension Defaults.Keys {
         default: MusicControlButton.defaultLayout.count
     )
     
+    // MARK: Pomodoro
+    static let enablePomodoro = Key<Bool>("enablePomodoro", default: true)
+    static let pomodoroWorkDuration = Key<TimeInterval>("pomodoroWorkDuration", default: 25 * 60)
+    static let pomodoroShortBreakDuration = Key<TimeInterval>("pomodoroShortBreakDuration", default: 5 * 60)
+    static let pomodoroLongBreakDuration = Key<TimeInterval>("pomodoroLongBreakDuration", default: 15 * 60)
+    static let pomodoroCyclesBeforeLongBreak = Key<Double>("pomodoroCyclesBeforeLongBreak", default: 4)
+
     // MARK: Battery
     static let showPowerStatusNotifications = Key<Bool>("showPowerStatusNotifications", default: true)
     static let showBatteryIndicator = Key<Bool>("showBatteryIndicator", default: true)

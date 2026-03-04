@@ -7,7 +7,10 @@
 //
 
 import Defaults
+import os
 import SwiftUI
+
+private let lyricsViewLogger = Logger(subsystem: "com.dynanotch", category: "LyricsView")
 
 // MARK: - Compact Lyrics View (Single Line)
 
@@ -20,6 +23,7 @@ struct LyricsCompactView: View {
     let frameWidth: CGFloat
 
     var body: some View {
+        let _ = lyricsViewLogger.info("[LYRICS-VIEW] LyricsCompactView RENDER — hasLyrics=\(lyricsManager.hasLyrics) isFetching=\(lyricsManager.isFetching) currentLine='\(lyricsManager.currentLineText.prefix(40))' isPlaying=\(musicManager.isPlaying)")
         TimelineView(.animation(minimumInterval: 0.25)) { timeline in
             let elapsed = currentElapsed(at: timeline.date)
             let _ = lyricsManager.updatePosition(elapsed)
@@ -72,6 +76,7 @@ struct LyricsKaraokeView: View {
     private let contextLines = 2
 
     var body: some View {
+        let _ = lyricsViewLogger.info("[LYRICS-VIEW] LyricsKaraokeView RENDER — hasSynced=\(lyricsManager.hasSyncedLyrics) lineCount=\(lyricsManager.syncedLines.count) currentIdx=\(lyricsManager.currentLineIndex.map { String($0) } ?? "nil") isPlaying=\(musicManager.isPlaying)")
         TimelineView(.animation(minimumInterval: 0.25)) { timeline in
             let elapsed = currentElapsed(at: timeline.date)
             let _ = lyricsManager.updatePosition(elapsed)

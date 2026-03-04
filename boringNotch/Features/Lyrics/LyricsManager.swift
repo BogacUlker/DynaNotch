@@ -49,14 +49,21 @@ class LyricsManager: ObservableObject {
 
     /// Called when track changes. Fetches lyrics from cache or network.
     func onTrackChanged(title: String, artist: String, album: String, duration: TimeInterval, bundleIdentifier: String?) {
+        logger.info("[LYRICS] onTrackChanged called — title='\(title)' artist='\(artist)' album='\(album)' duration=\(duration) bundle=\(bundleIdentifier ?? "nil") enableLyrics=\(Defaults[.enableLyrics])")
+
         guard Defaults[.enableLyrics] else {
+            logger.info("[LYRICS] enableLyrics is FALSE — skipping fetch")
             reset()
             return
         }
 
         let trackKey = "\(title)|\(artist)"
-        guard trackKey != currentTrackKey else { return }
+        guard trackKey != currentTrackKey else {
+            logger.info("[LYRICS] same trackKey '\(trackKey)' — skipping duplicate")
+            return
+        }
         currentTrackKey = trackKey
+        logger.info("[LYRICS] new track — starting fetch for '\(trackKey)'")
 
         // Cancel any in-flight fetch
         fetchTask?.cancel()
@@ -70,57 +77,78 @@ class LyricsManager: ObservableObject {
 
             // 1. Check cache
             if let cached = LyricsCache.get(title: title, artist: artist) {
+                logger.info("[LYRICS] cache HIT — synced=\(cached.syncedLines.count) plain=\(cached.plainText.prefix(50))")
                 self.applyLyrics(cached.parsedLyrics)
                 self.isFetching = false
                 return
             }
+            logger.info("[LYRICS] cache MISS")
 
             // 2. Try Apple Music native lyrics (AppleScript) if applicable
             if let bundleID = bundleIdentifier, bundleID.contains("com.apple.Music") {
+                logger.info("[LYRICS] trying Apple Music AppleScript lyrics")
                 if let appleLyrics = await self.fetchAppleMusicLyrics() {
+                    logger.info("[LYRICS] Apple Music lyrics found — \(appleLyrics.prefix(80))")
                     let parsed = ParsedLyrics(syncedLines: [], plainText: appleLyrics)
                     self.applyLyrics(parsed)
                     LyricsCache.store(title: title, artist: artist, lyrics: parsed, source: "AppleMusic")
                     self.isFetching = false
                     return
                 }
+                logger.info("[LYRICS] Apple Music lyrics not available")
             }
 
             // 3. Try LRCLIB
+            logger.info("[LYRICS] trying LRCLIB API")
             do {
                 // First try exact match with duration
                 var result: LRCLibResult?
                 if !album.isEmpty && duration > 0 {
+                    logger.info("[LYRICS] LRCLIB get (exact) — album='\(album)' dur=\(Int(duration))")
                     result = try await LRCLibService.get(title: title, artist: artist, album: album, duration: duration)
+                    logger.info("[LYRICS] LRCLIB get result: \(result != nil ? "found" : "nil")")
                 }
 
                 // Fallback to search
                 if result == nil {
+                    logger.info("[LYRICS] LRCLIB search fallback")
                     result = try await LRCLibService.search(title: title, artist: artist, album: album.isEmpty ? nil : album, duration: duration > 0 ? duration : nil)
+                    logger.info("[LYRICS] LRCLIB search result: \(result != nil ? "found" : "nil")")
                 }
 
-                guard !Task.isCancelled else { return }
+                guard !Task.isCancelled else {
+                    logger.info("[LYRICS] task cancelled before applying result")
+                    return
+                }
 
                 if let result = result {
+                    let hasSynced = result.syncedLyrics?.isEmpty == false
+                    let hasPlain = result.plainLyrics?.isEmpty == false
+                    logger.info("[LYRICS] LRCLIB result — hasSynced=\(hasSynced) hasPlain=\(hasPlain) track='\(result.trackName ?? "?")'")
+
                     let synced = result.syncedLyrics.flatMap { str -> [LyricLine] in
                         let lines = LyricsParser.parseLRC(str)
                         return lines.isEmpty ? [] : lines
                     } ?? []
                     let plain = result.plainLyrics?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
 
+                    logger.info("[LYRICS] parsed — syncedLines=\(synced.count) plainLen=\(plain.count)")
+
                     let parsed = ParsedLyrics(syncedLines: synced, plainText: plain)
                     self.applyLyrics(parsed)
                     LyricsCache.store(title: title, artist: artist, lyrics: parsed, source: "LRCLIB")
                 } else {
+                    logger.info("[LYRICS] no results from LRCLIB")
                     self.plainText = ""
                     self.syncedLines = []
                 }
             } catch {
                 guard !Task.isCancelled else { return }
-                logger.warning("Lyrics fetch failed: \(error.localizedDescription)")
+                logger.error("[LYRICS] fetch error: \(error.localizedDescription)")
             }
 
             self.isFetching = false
+            logger.info("[LYRICS] fetch complete — hasLyrics=\(self.hasLyrics) hasSynced=\(self.hasSyncedLyrics)")
         }
     }
 

@@ -53,21 +53,27 @@ enum LRCLibService {
         request.setValue("DynaNotch/2.0.0", forHTTPHeaderField: "User-Agent")
         request.timeoutInterval = 10
 
+        logger.info("[LRCLIB] search URL: \(urlString)")
+
         let (data, response) = try await URLSession.shared.data(for: request)
 
         guard let http = response as? HTTPURLResponse else {
-            logger.warning("Non-HTTP response from LRCLIB")
+            logger.warning("[LRCLIB] non-HTTP response")
             return nil
         }
 
+        logger.info("[LRCLIB] search response status=\(http.statusCode) bytes=\(data.count)")
+
         guard http.statusCode == 200 else {
-            logger.warning("LRCLIB returned status \(http.statusCode)")
+            logger.warning("[LRCLIB] search returned status \(http.statusCode)")
             return nil
         }
 
         let results = try JSONDecoder().decode([LRCLibResult].self, from: data)
+        logger.info("[LRCLIB] search decoded \(results.count) results")
 
         guard !results.isEmpty else {
+            logger.info("[LRCLIB] search returned empty results array")
             return nil
         }
 
@@ -101,15 +107,28 @@ enum LRCLibService {
 
         let urlString = "\(baseURL)/get?track_name=\(encodedTitle)&artist_name=\(encodedArtist)&album_name=\(encodedAlbum)&duration=\(Int(duration))"
 
-        guard let url = URL(string: urlString) else { return nil }
+        guard let url = URL(string: urlString) else {
+            logger.warning("[LRCLIB] get: invalid URL")
+            return nil
+        }
 
         var request = URLRequest(url: url)
         request.setValue("DynaNotch/2.0.0", forHTTPHeaderField: "User-Agent")
         request.timeoutInterval = 10
 
+        logger.info("[LRCLIB] get URL: \(urlString)")
+
         let (data, response) = try await URLSession.shared.data(for: request)
 
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+        guard let http = response as? HTTPURLResponse else {
+            logger.warning("[LRCLIB] get: non-HTTP response")
+            return nil
+        }
+
+        logger.info("[LRCLIB] get response status=\(http.statusCode) bytes=\(data.count)")
+
+        guard http.statusCode == 200 else {
+            logger.warning("[LRCLIB] get returned status \(http.statusCode)")
             return nil
         }
 

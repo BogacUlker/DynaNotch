@@ -8,7 +8,10 @@
 
 import Combine
 import Defaults
+import os
 import SwiftUI
+
+private let notchHomeLogger = Logger(subsystem: "com.dynanotch", category: "NotchHome")
 
 // MARK: - Music Player Components
 
@@ -153,6 +156,7 @@ struct MusicControlsView: View {
                 frameWidth: width
             )
             .fontWeight(.medium)
+            let _ = notchHomeLogger.info("[NOTCH-HOME] songInfo — enableLyrics=\(Defaults[.enableLyrics]) displayMode=\(Defaults[.lyricsDisplayMode].rawValue) notchState=\(vm.notchState == .open ? "open" : "closed")")
             if Defaults[.enableLyrics] {
                 if Defaults[.lyricsDisplayMode] == .karaoke && vm.notchState == .open {
                     LyricsKaraokeView(

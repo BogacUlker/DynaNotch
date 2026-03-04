@@ -151,6 +151,8 @@
 		AA1000030000000100000003 /* LyricsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000030000000100000003 /* LyricsCache.swift */; };
 		AA1000040000000100000004 /* LyricsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000040000000100000004 /* LyricsManager.swift */; };
 		AA1000050000000100000005 /* LyricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000050000000100000005 /* LyricsView.swift */; };
+		BB1000010000000100000001 /* PomodoroManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2000010000000100000001 /* PomodoroManager.swift */; };
+		BB1000020000000100000002 /* PomodoroView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB2000020000000100000002 /* PomodoroView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -325,6 +327,8 @@
 		AA2000030000000100000003 /* LyricsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsCache.swift; sourceTree = "<group>"; };
 		AA2000040000000100000004 /* LyricsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsManager.swift; sourceTree = "<group>"; };
 		AA2000050000000100000005 /* LyricsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsView.swift; sourceTree = "<group>"; };
+		BB2000010000000100000001 /* PomodoroManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroManager.swift; sourceTree = "<group>"; };
+		BB2000020000000100000002 /* PomodoroView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -797,8 +801,18 @@
 			isa = PBXGroup;
 			children = (
 				AA3000020000000100000002 /* Lyrics */,
+				BB3000010000000100000001 /* Pomodoro */,
 			);
 			path = Features;
+			sourceTree = "<group>";
+		};
+		BB3000010000000100000001 /* Pomodoro */ = {
+			isa = PBXGroup;
+			children = (
+				BB2000010000000100000001 /* PomodoroManager.swift */,
+				BB2000020000000100000002 /* PomodoroView.swift */,
+			);
+			path = Pomodoro;
 			sourceTree = "<group>";
 		};
 		AA3000020000000100000002 /* Lyrics */ = {
@@ -1013,6 +1027,8 @@
 				AA1000030000000100000003 /* LyricsCache.swift in Sources */,
 				AA1000040000000100000004 /* LyricsManager.swift in Sources */,
 				AA1000050000000100000005 /* LyricsView.swift in Sources */,
+				BB1000010000000100000001 /* PomodoroManager.swift in Sources */,
+				BB1000020000000100000002 /* PomodoroView.swift in Sources */,
 				5917FD112E57891600E87F1C /* MediaKeyInterceptor.swift in Sources */,
 				14C08BC12C8E03AD000F8AA0 /* NSImage+Extensions.swift in Sources */,
 				149E0B9A2C737D40006418B1 /* WebcamView.swift in Sources */,
