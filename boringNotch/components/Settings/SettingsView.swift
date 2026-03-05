@@ -65,6 +65,9 @@ struct SettingsView: View {
                     NavigationLink(value: "Weather") {
                         Label("Weather", systemImage: "cloud.sun")
                     }
+                    NavigationLink(value: "Sports") {
+                        Label("Sports", systemImage: "sportscourt")
+                    }
                 } header: {
                     Text("FEATURES")
                         .font(.caption2)
@@ -129,6 +132,8 @@ struct SettingsView: View {
                     QuickNotesSettings()
                 case "Weather":
                     WeatherSettings()
+                case "Sports":
+                    SportsSettings()
                 case "Shelf":
                     Shelf()
                 case "Shortcuts":

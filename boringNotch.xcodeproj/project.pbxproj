@@ -157,6 +157,18 @@
 		DD1000020000000100000002 /* QuickNotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD2000020000000100000002 /* QuickNotesView.swift */; };
 		EE1000010000000100000001 /* WeatherManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2000010000000100000001 /* WeatherManager.swift */; };
 		EE1000020000000100000002 /* WeatherHeaderWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2000020000000100000002 /* WeatherHeaderWidget.swift */; };
+		FF1000010000000100000001 /* SportEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000010000000100000001 /* SportEvent.swift */; };
+		FF1000020000000100000002 /* FootballModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000020000000100000002 /* FootballModels.swift */; };
+		FF1000030000000100000003 /* BasketballModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000030000000100000003 /* BasketballModels.swift */; };
+		FF1000040000000100000004 /* F1Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000040000000100000004 /* F1Models.swift */; };
+		FF1000050000000100000005 /* SportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000050000000100000005 /* SportProvider.swift */; };
+		FF1000060000000100000006 /* FootballProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000060000000100000006 /* FootballProvider.swift */; };
+		FF1000070000000100000007 /* BasketballProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000070000000100000007 /* BasketballProvider.swift */; };
+		FF1000080000000100000008 /* F1Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000080000000100000008 /* F1Provider.swift */; };
+		FF1000090000000100000009 /* SportsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000090000000100000009 /* SportsManager.swift */; };
+		FF10000A000000010000000A /* SportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20000A000000010000000A /* SportsView.swift */; };
+		FF10000B000000010000000B /* SportsCollapsedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20000B000000010000000B /* SportsCollapsedView.swift */; };
+		FF10000C000000010000000C /* SportsSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20000C000000010000000C /* SportsSettings.swift */; };
 		D29C043109C6470994315D4A /* AdaptiveNotchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94CDF7032C743ACAA9D5F74 /* AdaptiveNotchShape.swift */; };
 		F38DE6482D8243E7008B5C6D /* BatteryActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38DE6472D8243E2008B5C6D /* BatteryActivityManager.swift */; };
 /* End PBXBuildFile section */
@@ -340,6 +352,18 @@
 		DD2000020000000100000002 /* QuickNotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickNotesView.swift; sourceTree = "<group>"; };
 		EE2000010000000100000001 /* WeatherManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherManager.swift; sourceTree = "<group>"; };
 		EE2000020000000100000002 /* WeatherHeaderWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherHeaderWidget.swift; sourceTree = "<group>"; };
+		FF2000010000000100000001 /* SportEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportEvent.swift; sourceTree = "<group>"; };
+		FF2000020000000100000002 /* FootballModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FootballModels.swift; sourceTree = "<group>"; };
+		FF2000030000000100000003 /* BasketballModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketballModels.swift; sourceTree = "<group>"; };
+		FF2000040000000100000004 /* F1Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F1Models.swift; sourceTree = "<group>"; };
+		FF2000050000000100000005 /* SportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportProvider.swift; sourceTree = "<group>"; };
+		FF2000060000000100000006 /* FootballProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FootballProvider.swift; sourceTree = "<group>"; };
+		FF2000070000000100000007 /* BasketballProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasketballProvider.swift; sourceTree = "<group>"; };
+		FF2000080000000100000008 /* F1Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = F1Provider.swift; sourceTree = "<group>"; };
+		FF2000090000000100000009 /* SportsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportsManager.swift; sourceTree = "<group>"; };
+		FF20000A000000010000000A /* SportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportsView.swift; sourceTree = "<group>"; };
+		FF20000B000000010000000B /* SportsCollapsedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportsCollapsedView.swift; sourceTree = "<group>"; };
+		FF20000C000000010000000C /* SportsSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportsSettings.swift; sourceTree = "<group>"; };
 		F38DE6472D8243E2008B5C6D /* BatteryActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryActivityManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -715,8 +739,9 @@
 			children = (
 				AA3000020000000100000002 /* Lyrics */,
 				BB3000010000000100000001 /* Pomodoro */,
-				CC3000010000000100000001 /* SystemMonitor */,
 				DD3000010000000100000001 /* QuickNotes */,
+				FF3000010000000100000001 /* Sports */,
+				CC3000010000000100000001 /* SystemMonitor */,
 				EE3000010000000100000001 /* Weather */,
 			);
 			path = Features;
@@ -867,6 +892,41 @@
 				EE2000020000000100000002 /* WeatherHeaderWidget.swift */,
 			);
 			path = Weather;
+			sourceTree = "<group>";
+		};
+		FF3000010000000100000001 /* Sports */ = {
+			isa = PBXGroup;
+			children = (
+				FF3000020000000100000002 /* Models */,
+				FF3000030000000100000003 /* Providers */,
+				FF2000090000000100000009 /* SportsManager.swift */,
+				FF20000A000000010000000A /* SportsView.swift */,
+				FF20000B000000010000000B /* SportsCollapsedView.swift */,
+				FF20000C000000010000000C /* SportsSettings.swift */,
+			);
+			path = Sports;
+			sourceTree = "<group>";
+		};
+		FF3000020000000100000002 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FF2000010000000100000001 /* SportEvent.swift */,
+				FF2000020000000100000002 /* FootballModels.swift */,
+				FF2000030000000100000003 /* BasketballModels.swift */,
+				FF2000040000000100000004 /* F1Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		FF3000030000000100000003 /* Providers */ = {
+			isa = PBXGroup;
+			children = (
+				FF2000050000000100000005 /* SportProvider.swift */,
+				FF2000060000000100000006 /* FootballProvider.swift */,
+				FF2000070000000100000007 /* BasketballProvider.swift */,
+				FF2000080000000100000008 /* F1Provider.swift */,
+			);
+			path = Providers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1077,6 +1137,18 @@
 				DD1000020000000100000002 /* QuickNotesView.swift in Sources */,
 				EE1000010000000100000001 /* WeatherManager.swift in Sources */,
 				EE1000020000000100000002 /* WeatherHeaderWidget.swift in Sources */,
+				FF1000010000000100000001 /* SportEvent.swift in Sources */,
+				FF1000020000000100000002 /* FootballModels.swift in Sources */,
+				FF1000030000000100000003 /* BasketballModels.swift in Sources */,
+				FF1000040000000100000004 /* F1Models.swift in Sources */,
+				FF1000050000000100000005 /* SportProvider.swift in Sources */,
+				FF1000060000000100000006 /* FootballProvider.swift in Sources */,
+				FF1000070000000100000007 /* BasketballProvider.swift in Sources */,
+				FF1000080000000100000008 /* F1Provider.swift in Sources */,
+				FF1000090000000100000009 /* SportsManager.swift in Sources */,
+				FF10000A000000010000000A /* SportsView.swift in Sources */,
+				FF10000B000000010000000B /* SportsCollapsedView.swift in Sources */,
+				FF10000C000000010000000C /* SportsSettings.swift in Sources */,
 				5917FD112E57891600E87F1C /* MediaKeyInterceptor.swift in Sources */,
 				14C08BC12C8E03AD000F8AA0 /* NSImage+Extensions.swift in Sources */,
 				149E0B9A2C737D40006418B1 /* WebcamView.swift in Sources */,

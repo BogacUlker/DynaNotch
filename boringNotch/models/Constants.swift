@@ -255,6 +255,19 @@ extension Defaults.Keys {
     static let weatherUpdateInterval = Key<Int>("weatherUpdateInterval", default: 10)
     static let weatherShowHumidity = Key<Bool>("weatherShowHumidity", default: false)
 
+    // MARK: Sports (Beta)
+    static let enableSports = Key<Bool>("enableSports", default: false)
+    static let enableFootball = Key<Bool>("enableFootball", default: true)
+    static let enableBasketball = Key<Bool>("enableBasketball", default: true)
+    static let enableF1 = Key<Bool>("enableF1", default: true)
+    static let sportsFootballLeagues = Key<[FootballLeague]>("sportsFootballLeagues", default: [FootballLeague(id: "eng.1", name: "Premier League")])
+    static let sportsFavoriteFootballTeam = Key<String>("sportsFavoriteFootballTeam", default: "")
+    static let sportsFavoriteBasketballTeam = Key<String>("sportsFavoriteBasketballTeam", default: "")
+    static let sportsFavoriteF1Driver = Key<String>("sportsFavoriteF1Driver", default: "")
+    static let sportsSlot1 = Key<SportsWidgetKind>("sportsSlot1", default: .footballLive)
+    static let sportsSlot2 = Key<SportsWidgetKind>("sportsSlot2", default: .footballStandings)
+    static let sportsSlot3 = Key<SportsWidgetKind>("sportsSlot3", default: .f1Calendar)
+
     // MARK: Display Mode
     static let displayModeOverride = Key<DisplayModeOverride>("displayModeOverride", default: .automatic)
 }

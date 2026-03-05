@@ -13,6 +13,17 @@ import KeyboardShortcuts
 import SwiftUI
 import SwiftUIIntrospect
 
+// MARK: - Collapsed Indicator Types
+
+enum CollapsedIndicatorKind: Equatable {
+    case music
+    case pomodoro
+    case systemMonitor
+    case quickNotes
+    case weather
+    case sports
+}
+
 @MainActor
 struct ContentView: View {
     @EnvironmentObject var vm: BoringViewModel
@@ -27,6 +38,7 @@ struct ContentView: View {
     @ObservedObject var systemMonitorManager = SystemMonitorManager.shared
     @ObservedObject var quickNotesManager = QuickNotesManager.shared
     @ObservedObject var weatherManager = WeatherManager.shared
+    @ObservedObject var sportsManager = SportsManager.shared
     @State private var hoverTask: Task<Void, Never>?
     @State private var isHovering: Bool = false
     @State private var anyDropDebounceTask: Task<Void, Never>?
@@ -34,6 +46,7 @@ struct ContentView: View {
     @State private var gestureProgress: CGFloat = .zero
 
     @State private var haptics: Bool = false
+    @State private var carouselIndex: Int = 0
 
     @Namespace var albumArtNamespace
 
@@ -73,42 +86,55 @@ struct ContentView: View {
         )
     }
 
+    /// All currently active collapsed indicators, max 3, ordered by priority.
+    private var activeCollapsedIndicators: [CollapsedIndicatorKind] {
+        guard vm.notchState == .closed && !vm.hideOnClosed else { return [] }
+
+        var indicators: [CollapsedIndicatorKind] = []
+        let canShowNonMusic = !coordinator.expandingView.show
+        let canShowMusic = canShowNonMusic || coordinator.expandingView.type == .music
+
+        if canShowMusic && (musicManager.isPlaying || !musicManager.isPlayerIdle)
+            && coordinator.musicLiveActivityEnabled
+        {
+            indicators.append(.music)
+        }
+        if canShowNonMusic && pomodoroManager.timerState != .idle {
+            indicators.append(.pomodoro)
+        }
+        if canShowNonMusic && systemMonitorManager.isActive {
+            indicators.append(.systemMonitor)
+        }
+        if canShowNonMusic && quickNotesManager.isActive && !quickNotesManager.notes.isEmpty
+            && Defaults[.quickNotesShowCollapsedPreview]
+        {
+            indicators.append(.quickNotes)
+        }
+        if canShowNonMusic && weatherManager.isActive && weatherManager.temperature != nil {
+            indicators.append(.weather)
+        }
+        if canShowNonMusic && Defaults[.enableSports] && sportsManager.hasLiveEvent {
+            indicators.append(.sports)
+        }
+
+        return Array(indicators.prefix(3))
+    }
+
     private var computedChinWidth: CGFloat {
         var chinWidth: CGFloat = vm.closedNotchSize.width
+        let singleExt = 2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20
 
         if coordinator.expandingView.type == .battery && coordinator.expandingView.show
             && vm.notchState == .closed && Defaults[.showPowerStatusNotifications]
         {
             chinWidth = 640
-        } else if (!coordinator.expandingView.show || coordinator.expandingView.type == .music)
-            && vm.notchState == .closed && (musicManager.isPlaying || !musicManager.isPlayerIdle)
-            && coordinator.musicLiveActivityEnabled && !vm.hideOnClosed
-        {
-            chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
+        } else if !activeCollapsedIndicators.isEmpty {
+            chinWidth += singleExt
         } else if !coordinator.expandingView.show && vm.notchState == .closed
-            && pomodoroManager.timerState != .idle && !vm.hideOnClosed
+            && (!musicManager.isPlaying && musicManager.isPlayerIdle)
+            && Defaults[.showNotHumanFace] && !vm.hideOnClosed
         {
-            chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
-        } else if !coordinator.expandingView.show && vm.notchState == .closed
-            && pomodoroManager.timerState == .idle && systemMonitorManager.isActive && !vm.hideOnClosed
-        {
-            chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
-        } else if !coordinator.expandingView.show && vm.notchState == .closed
-            && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive
-            && quickNotesManager.isActive && !quickNotesManager.notes.isEmpty && !vm.hideOnClosed
-        {
-            chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
-        } else if !coordinator.expandingView.show && vm.notchState == .closed
-            && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive
-            && (quickNotesManager.notes.isEmpty || !quickNotesManager.isActive)
-            && weatherManager.isActive && weatherManager.temperature != nil && !vm.hideOnClosed
-        {
-            chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
-        } else if !coordinator.expandingView.show && vm.notchState == .closed
-            && (!musicManager.isPlaying && musicManager.isPlayerIdle) && Defaults[.showNotHumanFace]
-            && !vm.hideOnClosed
-        {
-            chinWidth += (2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20)
+            chinWidth += singleExt
         }
 
         return chinWidth
@@ -136,6 +162,12 @@ struct ContentView: View {
                     .padding([.horizontal, .bottom], vm.notchState == .open ? 12 : 0)
                     .background(.black)
                     .clipShape(currentClipShape)
+                    .overlay {
+                        if vm.isFloatingTab && vm.notchState == .closed {
+                            currentClipShape
+                                .stroke(Color.white.opacity(0.12), lineWidth: 0.5)
+                        }
+                    }
                     .overlay(alignment: .top) {
                         if !vm.isFloatingTab {
                             Rectangle()
@@ -233,6 +265,19 @@ struct ContentView: View {
                         }
                     }
                     .sensoryFeedback(.alignment, trigger: haptics)
+                    .task {
+                        // Carousel timer: rotate right-side indicators every 4 seconds
+                        while !Task.isCancelled {
+                            try? await Task.sleep(for: .seconds(4))
+                            guard !Task.isCancelled else { break }
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                carouselIndex += 1
+                            }
+                        }
+                    }
+                    .onChange(of: activeCollapsedIndicators) { _, _ in
+                        carouselIndex = 0
+                    }
                     .contextMenu {
                         Button("Settings") {
                             SettingsWindowController.shared.showWindow()
@@ -306,16 +351,7 @@ struct ContentView: View {
                     .padding(.top, 40)
                     Spacer()
                 } else {
-                    if vm.isFloatingTab && vm.notchState == .closed
-                        && !coordinator.sneakPeek.show
-                        && !(coordinator.expandingView.type == .battery && coordinator.expandingView.show) {
-                        // Floating tab collapsed pill — thin black bar
-                        Color.black
-                            .frame(
-                                width: FloatingTabConstants.collapsedSize.width,
-                                height: FloatingTabConstants.collapsedSize.height
-                            )
-                    } else if coordinator.expandingView.type == .battery && coordinator.expandingView.show
+                    if coordinator.expandingView.type == .battery && coordinator.expandingView.show
                         && vm.notchState == .closed && Defaults[.showPowerStatusNotifications]
                     {
                         HStack(spacing: 0) {
@@ -345,30 +381,36 @@ struct ContentView: View {
                       } else if coordinator.sneakPeek.show && Defaults[.inlineHUD] && (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery) && vm.notchState == .closed {
                           InlineHUD(type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, icon: $coordinator.sneakPeek.icon, hoverAnimation: $isHovering, gestureProgress: $gestureProgress)
                               .transition(.opacity)
-                      } else if (!coordinator.expandingView.show || coordinator.expandingView.type == .music) && vm.notchState == .closed && (musicManager.isPlaying || !musicManager.isPlayerIdle) && coordinator.musicLiveActivityEnabled && !vm.hideOnClosed {
-                          MusicLiveActivity()
-                              .frame(alignment: .center)
-                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState != .idle && !vm.hideOnClosed {
-                          PomodoroLiveActivity()
-                              .frame(alignment: .center)
-                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && systemMonitorManager.isActive && !vm.hideOnClosed {
-                          SystemMonitorLiveActivity()
-                              .frame(alignment: .center)
-                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive && quickNotesManager.isActive && !quickNotesManager.notes.isEmpty && Defaults[.quickNotesShowCollapsedPreview] && !vm.hideOnClosed {
-                          QuickNotesLiveActivity()
-                              .frame(alignment: .center)
-                      } else if !coordinator.expandingView.show && vm.notchState == .closed && pomodoroManager.timerState == .idle && !systemMonitorManager.isActive && (!quickNotesManager.isActive || quickNotesManager.notes.isEmpty || !Defaults[.quickNotesShowCollapsedPreview]) && weatherManager.isActive && weatherManager.temperature != nil && !vm.hideOnClosed {
-                          WeatherLiveActivity()
-                              .frame(alignment: .center)
-                      } else if !coordinator.expandingView.show && vm.notchState == .closed && (!musicManager.isPlaying && musicManager.isPlayerIdle) && Defaults[.showNotHumanFace] && !vm.hideOnClosed  {
-                          BoringFaceAnimation()
-                       } else if vm.notchState == .open {
-                           BoringHeader()
-                               .frame(height: max(24, vm.effectiveClosedNotchHeight))
-                               .opacity(gestureProgress != 0 ? 1.0 - min(abs(gestureProgress) * 0.1, 0.3) : 1.0)
-                       } else {
-                           Rectangle().fill(.clear).frame(width: vm.closedNotchSize.width - 20, height: vm.effectiveClosedNotchHeight)
-                       }
+                      } else {
+                          let indicators = activeCollapsedIndicators
+                          let musicActive = indicators.contains(.music)
+                          let otherIndicators = indicators.filter { $0 != .music }
+
+                          if musicActive && !otherIndicators.isEmpty {
+                              // Music fixed left + carousel of others on right
+                              MusicPlusCarouselView(rightIndicators: otherIndicators)
+                          } else if musicActive {
+                              // Music only
+                              MusicLiveActivity().frame(alignment: .center)
+                          } else if otherIndicators.count == 1 {
+                              // Single non-music indicator: full live activity
+                              singleIndicatorView(for: otherIndicators[0])
+                          } else if otherIndicators.count > 1 {
+                              // Multiple non-music: carousel through full views
+                              carouselFullView(indicators: otherIndicators)
+                          } else if !coordinator.expandingView.show && vm.notchState == .closed
+                              && (!musicManager.isPlaying && musicManager.isPlayerIdle)
+                              && Defaults[.showNotHumanFace] && !vm.hideOnClosed
+                          {
+                              BoringFaceAnimation()
+                          } else if vm.notchState == .open {
+                              BoringHeader()
+                                  .frame(height: max(24, vm.effectiveClosedNotchHeight))
+                                  .opacity(gestureProgress != 0 ? 1.0 - min(abs(gestureProgress) * 0.1, 0.3) : 1.0)
+                          } else {
+                              Rectangle().fill(.clear).frame(width: vm.closedNotchSize.width - 20, height: vm.effectiveClosedNotchHeight)
+                          }
+                      }
 
                       if coordinator.sneakPeek.show {
                           if (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery) && !Defaults[.inlineHUD] && vm.notchState == .closed {
@@ -425,6 +467,8 @@ struct ContentView: View {
                         SystemMonitorView()
                     case .quickNotes:
                         QuickNotesView()
+                    case .sports:
+                        SportsView()
                     }
                 }
                 .transition(
@@ -727,6 +771,215 @@ struct ContentView: View {
             height: vm.effectiveClosedNotchHeight,
             alignment: .center
         )
+    }
+
+    @ViewBuilder
+    func SportsLiveActivity() -> some View {
+        HStack {
+            // Left: live dot
+            Circle()
+                .fill(Color.red)
+                .frame(
+                    width: max(4, vm.effectiveClosedNotchHeight - 22),
+                    height: max(4, vm.effectiveClosedNotchHeight - 22)
+                )
+
+            // Center: notch gap
+            Rectangle()
+                .fill(.black)
+                .frame(width: vm.closedNotchSize.width + 10)
+
+            // Right: collapsed text
+            if let text = sportsManager.currentCollapsedText {
+                Text(text)
+                    .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                    .fixedSize()
+                    .padding(.trailing, 4)
+            }
+        }
+        .frame(
+            height: vm.effectiveClosedNotchHeight,
+            alignment: .center
+        )
+    }
+
+    // MARK: - Carousel Collapsed Views
+
+    @ViewBuilder
+    func singleIndicatorView(for kind: CollapsedIndicatorKind) -> some View {
+        switch kind {
+        case .music: MusicLiveActivity().frame(alignment: .center)
+        case .pomodoro: PomodoroLiveActivity().frame(alignment: .center)
+        case .systemMonitor: SystemMonitorLiveActivity().frame(alignment: .center)
+        case .quickNotes: QuickNotesLiveActivity().frame(alignment: .center)
+        case .weather: WeatherLiveActivity().frame(alignment: .center)
+        case .sports: SportsLiveActivity().frame(alignment: .center)
+        }
+    }
+
+    @ViewBuilder
+    func carouselFullView(indicators: [CollapsedIndicatorKind]) -> some View {
+        let current = indicators[carouselIndex % indicators.count]
+        ZStack {
+            singleIndicatorView(for: current)
+                .id(current)
+                .transition(.opacity)
+        }
+        .animation(.easeInOut(duration: 0.5), value: carouselIndex)
+    }
+
+    @ViewBuilder
+    func MusicPlusCarouselView(rightIndicators: [CollapsedIndicatorKind]) -> some View {
+        let currentRight = rightIndicators[carouselIndex % rightIndicators.count]
+
+        HStack(spacing: 0) {
+            // Left: Music (album art + visualizer) — always visible
+            CompactMusicChip()
+
+            if vm.isFloatingTab {
+                // Floating tab: thin divider instead of notch gap
+                Capsule()
+                    .fill(Color.white.opacity(0.15))
+                    .frame(width: 1, height: vm.effectiveClosedNotchHeight - 10)
+                    .padding(.horizontal, 4)
+            } else {
+                // Physical notch: black notch gap
+                Rectangle()
+                    .fill(.black)
+                    .frame(width: vm.closedNotchSize.width + 10)
+            }
+
+            // Right: Carousel of other indicators with fade transition
+            ZStack {
+                CarouselRightContent(indicator: currentRight)
+                    .id(currentRight)
+                    .transition(.opacity)
+            }
+            .animation(.easeInOut(duration: 0.5), value: carouselIndex)
+        }
+        .frame(height: vm.effectiveClosedNotchHeight, alignment: .center)
+    }
+
+    @ViewBuilder
+    func CarouselRightContent(indicator: CollapsedIndicatorKind) -> some View {
+        switch indicator {
+        case .pomodoro: CompactPomodoroChip()
+        case .systemMonitor: CompactSystemMonitorChip()
+        case .quickNotes: CompactQuickNotesChip()
+        case .weather: CompactWeatherChip()
+        case .sports: CompactSportsChip()
+        case .music: EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    func CompactMusicChip() -> some View {
+        HStack(spacing: 3) {
+            Image(nsImage: musicManager.albumArt)
+                .resizable()
+                .clipShape(RoundedRectangle(cornerRadius: 3))
+                .frame(
+                    width: max(0, vm.effectiveClosedNotchHeight - 14),
+                    height: max(0, vm.effectiveClosedNotchHeight - 14)
+                )
+            if useMusicVisualizer {
+                Rectangle()
+                    .fill(
+                        Defaults[.coloredSpectrogram]
+                            ? Color(nsColor: musicManager.avgColor).gradient
+                            : Color.gray.gradient
+                    )
+                    .frame(width: 12, height: 10)
+                    .mask {
+                        AudioSpectrumView(isPlaying: $musicManager.isPlaying)
+                            .frame(width: 12, height: 10)
+                    }
+            }
+        }
+    }
+
+    @ViewBuilder
+    func CompactPomodoroChip() -> some View {
+        let phaseColor: Color = {
+            switch pomodoroManager.phase {
+            case .work: return .red
+            case .shortBreak: return .green
+            case .longBreak: return .blue
+            }
+        }()
+        let mins = Int(pomodoroManager.remainingSeconds) / 60
+        let secs = Int(pomodoroManager.remainingSeconds) % 60
+
+        HStack(spacing: 2) {
+            ZStack {
+                Circle()
+                    .stroke(Color.gray.opacity(0.2), lineWidth: 1.5)
+                Circle()
+                    .trim(from: 0, to: pomodoroManager.progress)
+                    .stroke(phaseColor, style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+            .frame(
+                width: max(0, vm.effectiveClosedNotchHeight - 16),
+                height: max(0, vm.effectiveClosedNotchHeight - 16)
+            )
+
+            Text(String(format: "%d:%02d", mins, secs))
+                .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                .foregroundColor(pomodoroManager.timerState == .paused ? phaseColor.opacity(0.5) : phaseColor)
+                .fixedSize()
+        }
+    }
+
+    @ViewBuilder
+    func CompactSystemMonitorChip() -> some View {
+        let cpuColor: Color = systemMonitorManager.cpuUsage < 50 ? .green : systemMonitorManager.cpuUsage < 80 ? .orange : .red
+
+        HStack(spacing: 2) {
+            ZStack {
+                Circle()
+                    .stroke(cpuColor.opacity(0.2), lineWidth: 1.5)
+                Circle()
+                    .trim(from: 0, to: min(systemMonitorManager.cpuUsage / 100.0, 1.0))
+                    .stroke(cpuColor, style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+            }
+            .frame(
+                width: max(0, vm.effectiveClosedNotchHeight - 16),
+                height: max(0, vm.effectiveClosedNotchHeight - 16)
+            )
+
+            Text("\(Int(systemMonitorManager.cpuUsage))%")
+                .font(.system(size: 7, weight: .semibold, design: .monospaced))
+                .foregroundColor(cpuColor)
+                .fixedSize()
+        }
+    }
+
+    @ViewBuilder
+    func CompactQuickNotesChip() -> some View {
+        Image(systemName: "note.text")
+            .font(.system(size: max(8, vm.effectiveClosedNotchHeight - 18)))
+            .foregroundColor(.yellow)
+    }
+
+    @ViewBuilder
+    func CompactWeatherChip() -> some View {
+        HStack(spacing: 1) {
+            Text(weatherManager.weatherEmoji)
+                .font(.system(size: max(8, vm.effectiveClosedNotchHeight - 20)))
+            Text(weatherManager.temperatureDisplay)
+                .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                .foregroundColor(.cyan)
+                .fixedSize()
+        }
+    }
+
+    @ViewBuilder
+    func CompactSportsChip() -> some View {
+        SportsCollapsedChip()
     }
 
     @ViewBuilder

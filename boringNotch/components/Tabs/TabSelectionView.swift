@@ -20,6 +20,7 @@ struct TabSelectionView: View {
     @Default(.enablePomodoro) var enablePomodoro
     @Default(.enableSystemMonitor) var enableSystemMonitor
     @Default(.enableQuickNotes) var enableQuickNotes
+    @Default(.enableSports) var enableSports
     @Namespace var animation
 
     private var visibleTabs: [TabModel] {
@@ -35,6 +36,9 @@ struct TabSelectionView: View {
         }
         if enableSystemMonitor {
             result.append(TabModel(label: "Monitor", icon: "gauge.with.dots.needle.33percent", view: .systemMonitor))
+        }
+        if enableSports {
+            result.append(TabModel(label: "Sports", icon: "sportscourt", view: .sports))
         }
         return result
     }

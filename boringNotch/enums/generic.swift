@@ -30,6 +30,7 @@ public enum NotchViews {
     case pomodoro
     case systemMonitor
     case quickNotes
+    case sports
 }
 
 enum NotchAnimationStyle: String, CaseIterable, Identifiable, Defaults.Serializable {
