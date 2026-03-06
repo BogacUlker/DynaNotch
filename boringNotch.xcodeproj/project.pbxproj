@@ -121,6 +121,7 @@
 		AA1000030000000100000003 /* LyricsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000030000000100000003 /* LyricsCache.swift */; };
 		AA1000040000000100000004 /* LyricsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000040000000100000004 /* LyricsManager.swift */; };
 		AA1000050000000100000005 /* LyricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000050000000100000005 /* LyricsView.swift */; };
+		AA1000060000000100000006 /* BelowNotchLyricsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000060000000100000006 /* BelowNotchLyricsWindow.swift */; };
 		B10348D92C74E56000475897 /* ConditionalModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10348D82C74E56000475897 /* ConditionalModifier.swift */; };
 		B10F84A32C6C9596009F3026 /* TestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10F84A22C6C9596009F3026 /* TestView.swift */; };
 		B141C2412CA5F53F00AC8CC8 /* SparkleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B141C2402CA5F53E00AC8CC8 /* SparkleView.swift */; };
@@ -320,6 +321,7 @@
 		AA2000030000000100000003 /* LyricsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsCache.swift; sourceTree = "<group>"; };
 		AA2000040000000100000004 /* LyricsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsManager.swift; sourceTree = "<group>"; };
 		AA2000050000000100000005 /* LyricsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsView.swift; sourceTree = "<group>"; };
+		AA2000060000000100000006 /* BelowNotchLyricsWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BelowNotchLyricsWindow.swift; sourceTree = "<group>"; };
 		B10348D82C74E56000475897 /* ConditionalModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalModifier.swift; sourceTree = "<group>"; };
 		B10F84A22C6C9596009F3026 /* TestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestView.swift; sourceTree = "<group>"; };
 		B141C2402CA5F53E00AC8CC8 /* SparkleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SparkleView.swift; sourceTree = "<group>"; };
@@ -757,6 +759,7 @@
 				AA2000030000000100000003 /* LyricsCache.swift */,
 				AA2000040000000100000004 /* LyricsManager.swift */,
 				AA2000050000000100000005 /* LyricsView.swift */,
+				AA2000060000000100000006 /* BelowNotchLyricsWindow.swift */,
 			);
 			path = Lyrics;
 			sourceTree = "<group>";
@@ -1132,6 +1135,7 @@
 				AA1000030000000100000003 /* LyricsCache.swift in Sources */,
 				AA1000040000000100000004 /* LyricsManager.swift in Sources */,
 				AA1000050000000100000005 /* LyricsView.swift in Sources */,
+				AA1000060000000100000006 /* BelowNotchLyricsWindow.swift in Sources */,
 				BB1000010000000100000001 /* PomodoroManager.swift in Sources */,
 				BB1000020000000100000002 /* PomodoroView.swift in Sources */,
 				CC1000010000000100000001 /* SystemMonitorManager.swift in Sources */,

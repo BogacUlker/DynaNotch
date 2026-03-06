@@ -39,6 +39,7 @@ struct ContentView: View {
     @ObservedObject var quickNotesManager = QuickNotesManager.shared
     @ObservedObject var weatherManager = WeatherManager.shared
     @ObservedObject var sportsManager = SportsManager.shared
+    @ObservedObject var lyricsManager = LyricsManager.shared
     @State private var hoverTask: Task<Void, Never>?
     @State private var isHovering: Bool = false
     @State private var anyDropDebounceTask: Task<Void, Never>?
@@ -122,7 +123,7 @@ struct ContentView: View {
 
     private var computedChinWidth: CGFloat {
         var chinWidth: CGFloat = vm.closedNotchSize.width
-        let singleExt = 2 * max(0, vm.effectiveClosedNotchHeight - 12) + 20
+        let singleExt = 2 * max(0, vm.collapsedIndicatorHeight - 12) + 20
 
         if coordinator.expandingView.type == .battery && coordinator.expandingView.show
             && vm.notchState == .closed && Defaults[.showPowerStatusNotifications]
@@ -182,7 +183,7 @@ struct ContentView: View {
                     )
                     .padding(
                         .bottom,
-                        vm.effectiveClosedNotchHeight == 0 ? 10 : 0
+                        vm.collapsedIndicatorHeight == 0 ? 10 : 0
                     )
                 
                 mainLayout
@@ -377,7 +378,7 @@ struct ContentView: View {
                             }
                             .frame(width: 76, alignment: .trailing)
                         }
-                        .frame(height: vm.effectiveClosedNotchHeight, alignment: .center)
+                        .frame(height: vm.collapsedIndicatorHeight, alignment: .center)
                       } else if coordinator.sneakPeek.show && Defaults[.inlineHUD] && (coordinator.sneakPeek.type != .music) && (coordinator.sneakPeek.type != .battery) && vm.notchState == .closed {
                           InlineHUD(type: $coordinator.sneakPeek.type, value: $coordinator.sneakPeek.value, icon: $coordinator.sneakPeek.icon, hoverAnimation: $isHovering, gestureProgress: $gestureProgress)
                               .transition(.opacity)
@@ -405,11 +406,12 @@ struct ContentView: View {
                               BoringFaceAnimation()
                           } else if vm.notchState == .open {
                               BoringHeader()
-                                  .frame(height: max(24, vm.effectiveClosedNotchHeight))
+                                  .frame(height: max(24, vm.collapsedIndicatorHeight))
                                   .opacity(gestureProgress != 0 ? 1.0 - min(abs(gestureProgress) * 0.1, 0.3) : 1.0)
                           } else {
-                              Rectangle().fill(.clear).frame(width: vm.closedNotchSize.width - 20, height: vm.effectiveClosedNotchHeight)
+                              Rectangle().fill(.clear).frame(width: vm.closedNotchSize.width - 20, height: vm.collapsedIndicatorHeight)
                           }
+
                       }
 
                       if coordinator.sneakPeek.show {
@@ -491,8 +493,8 @@ struct ContentView: View {
                 Rectangle()
                     .fill(.clear)
                     .frame(
-                        width: max(0, vm.effectiveClosedNotchHeight - 12),
-                        height: max(0, vm.effectiveClosedNotchHeight - 12)
+                        width: max(0, vm.collapsedIndicatorHeight - 12),
+                        height: max(0, vm.collapsedIndicatorHeight - 12)
                     )
                 Rectangle()
                     .fill(.black)
@@ -500,7 +502,7 @@ struct ContentView: View {
                 MinimalFaceFeatures()
             }
         }.frame(
-            height: vm.effectiveClosedNotchHeight,
+            height: vm.collapsedIndicatorHeight,
             alignment: .center
         )
     }
@@ -517,8 +519,8 @@ struct ContentView: View {
                 )
                 .matchedGeometryEffect(id: "albumArt", in: albumArtNamespace)
                 .frame(
-                    width: max(0, vm.effectiveClosedNotchHeight - 12),
-                    height: max(0, vm.effectiveClosedNotchHeight - 12)
+                    width: max(0, vm.collapsedIndicatorHeight - 12),
+                    height: max(0, vm.collapsedIndicatorHeight - 12)
                 )
 
             Rectangle()
@@ -590,18 +592,18 @@ struct ContentView: View {
             .frame(
                 width: max(
                     0,
-                    vm.effectiveClosedNotchHeight - 12
+                    vm.collapsedIndicatorHeight - 12
                         + gestureProgress / 2
                 ),
                 height: max(
                     0,
-                    vm.effectiveClosedNotchHeight - 12
+                    vm.collapsedIndicatorHeight - 12
                 ),
                 alignment: .center
             )
         }
         .frame(
-            height: vm.effectiveClosedNotchHeight,
+            height: vm.collapsedIndicatorHeight,
             alignment: .center
         )
     }
@@ -631,8 +633,8 @@ struct ContentView: View {
                     .animation(.linear(duration: 1), value: pomodoroManager.progress)
             }
             .frame(
-                width: max(0, vm.effectiveClosedNotchHeight - 12),
-                height: max(0, vm.effectiveClosedNotchHeight - 12)
+                width: max(0, vm.collapsedIndicatorHeight - 12),
+                height: max(0, vm.collapsedIndicatorHeight - 12)
             )
 
             // Center: notch gap
@@ -648,7 +650,7 @@ struct ContentView: View {
                 .padding(.trailing, 4)
         }
         .frame(
-            height: vm.effectiveClosedNotchHeight,
+            height: vm.collapsedIndicatorHeight,
             alignment: .center
         )
     }
@@ -659,7 +661,7 @@ struct ContentView: View {
         let ramPercent = systemMonitorManager.ramUsagePercent
         let cpuColor: Color = cpuPercent < 50 ? .green : cpuPercent < 80 ? .orange : .red
         let ramColor: Color = ramPercent < 60 ? .cyan : ramPercent < 85 ? .orange : .red
-        let ringSize = max(0, vm.effectiveClosedNotchHeight - 12)
+        let ringSize = max(0, vm.collapsedIndicatorHeight - 12)
 
         HStack(spacing: 0) {
             // Left: CPU mini ring + percentage
@@ -707,7 +709,7 @@ struct ContentView: View {
             .padding(.trailing, 2)
         }
         .frame(
-            height: vm.effectiveClosedNotchHeight,
+            height: vm.collapsedIndicatorHeight,
             alignment: .center
         )
     }
@@ -717,11 +719,11 @@ struct ContentView: View {
         HStack {
             // Left: note icon
             Image(systemName: "note.text")
-                .font(.system(size: max(0, vm.effectiveClosedNotchHeight - 18)))
+                .font(.system(size: max(0, vm.collapsedIndicatorHeight - 18)))
                 .foregroundColor(.yellow)
                 .frame(
-                    width: max(0, vm.effectiveClosedNotchHeight - 12),
-                    height: max(0, vm.effectiveClosedNotchHeight - 12)
+                    width: max(0, vm.collapsedIndicatorHeight - 12),
+                    height: max(0, vm.collapsedIndicatorHeight - 12)
                 )
 
             // Center: notch gap
@@ -739,7 +741,7 @@ struct ContentView: View {
                 .padding(.trailing, 4)
         }
         .frame(
-            height: vm.effectiveClosedNotchHeight,
+            height: vm.collapsedIndicatorHeight,
             alignment: .center
         )
     }
@@ -749,10 +751,10 @@ struct ContentView: View {
         HStack {
             // Left: weather emoji
             Text(weatherManager.weatherEmoji)
-                .font(.system(size: max(0, vm.effectiveClosedNotchHeight - 18)))
+                .font(.system(size: max(0, vm.collapsedIndicatorHeight - 18)))
                 .frame(
-                    width: max(0, vm.effectiveClosedNotchHeight - 12),
-                    height: max(0, vm.effectiveClosedNotchHeight - 12)
+                    width: max(0, vm.collapsedIndicatorHeight - 12),
+                    height: max(0, vm.collapsedIndicatorHeight - 12)
                 )
 
             // Center: notch gap
@@ -768,7 +770,7 @@ struct ContentView: View {
                 .padding(.trailing, 4)
         }
         .frame(
-            height: vm.effectiveClosedNotchHeight,
+            height: vm.collapsedIndicatorHeight,
             alignment: .center
         )
     }
@@ -780,8 +782,8 @@ struct ContentView: View {
             Circle()
                 .fill(Color.red)
                 .frame(
-                    width: max(4, vm.effectiveClosedNotchHeight - 22),
-                    height: max(4, vm.effectiveClosedNotchHeight - 22)
+                    width: max(4, vm.collapsedIndicatorHeight - 22),
+                    height: max(4, vm.collapsedIndicatorHeight - 22)
                 )
 
             // Center: notch gap
@@ -800,7 +802,7 @@ struct ContentView: View {
             }
         }
         .frame(
-            height: vm.effectiveClosedNotchHeight,
+            height: vm.collapsedIndicatorHeight,
             alignment: .center
         )
     }
@@ -842,7 +844,7 @@ struct ContentView: View {
                 // Floating tab: thin divider instead of notch gap
                 Capsule()
                     .fill(Color.white.opacity(0.15))
-                    .frame(width: 1, height: vm.effectiveClosedNotchHeight - 10)
+                    .frame(width: 1, height: vm.collapsedIndicatorHeight - 10)
                     .padding(.horizontal, 4)
             } else {
                 // Physical notch: black notch gap
@@ -859,7 +861,7 @@ struct ContentView: View {
             }
             .animation(.easeInOut(duration: 0.5), value: carouselIndex)
         }
-        .frame(height: vm.effectiveClosedNotchHeight, alignment: .center)
+        .frame(height: vm.collapsedIndicatorHeight, alignment: .center)
     }
 
     @ViewBuilder
@@ -881,8 +883,8 @@ struct ContentView: View {
                 .resizable()
                 .clipShape(RoundedRectangle(cornerRadius: 3))
                 .frame(
-                    width: max(0, vm.effectiveClosedNotchHeight - 14),
-                    height: max(0, vm.effectiveClosedNotchHeight - 14)
+                    width: max(0, vm.collapsedIndicatorHeight - 14),
+                    height: max(0, vm.collapsedIndicatorHeight - 14)
                 )
             if useMusicVisualizer {
                 Rectangle()
@@ -922,8 +924,8 @@ struct ContentView: View {
                     .rotationEffect(.degrees(-90))
             }
             .frame(
-                width: max(0, vm.effectiveClosedNotchHeight - 16),
-                height: max(0, vm.effectiveClosedNotchHeight - 16)
+                width: max(0, vm.collapsedIndicatorHeight - 16),
+                height: max(0, vm.collapsedIndicatorHeight - 16)
             )
 
             Text(String(format: "%d:%02d", mins, secs))
@@ -947,8 +949,8 @@ struct ContentView: View {
                     .rotationEffect(.degrees(-90))
             }
             .frame(
-                width: max(0, vm.effectiveClosedNotchHeight - 16),
-                height: max(0, vm.effectiveClosedNotchHeight - 16)
+                width: max(0, vm.collapsedIndicatorHeight - 16),
+                height: max(0, vm.collapsedIndicatorHeight - 16)
             )
 
             Text("\(Int(systemMonitorManager.cpuUsage))%")
@@ -961,7 +963,7 @@ struct ContentView: View {
     @ViewBuilder
     func CompactQuickNotesChip() -> some View {
         Image(systemName: "note.text")
-            .font(.system(size: max(8, vm.effectiveClosedNotchHeight - 18)))
+            .font(.system(size: max(8, vm.collapsedIndicatorHeight - 18)))
             .foregroundColor(.yellow)
     }
 
@@ -969,7 +971,7 @@ struct ContentView: View {
     func CompactWeatherChip() -> some View {
         HStack(spacing: 1) {
             Text(weatherManager.weatherEmoji)
-                .font(.system(size: max(8, vm.effectiveClosedNotchHeight - 20)))
+                .font(.system(size: max(8, vm.collapsedIndicatorHeight - 20)))
             Text(weatherManager.temperatureDisplay)
                 .font(.system(size: 8, weight: .semibold, design: .monospaced))
                 .foregroundColor(.cyan)

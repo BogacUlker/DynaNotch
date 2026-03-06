@@ -114,9 +114,8 @@ class BoringViewModel: NSObject, ObservableObject {
             .store(in: &cancellables)
     }
 
-    // Computed property for effective notch height
-    var effectiveClosedNotchHeight: CGFloat {
-        // Fullscreen hiding applies to both display modes
+    /// Base collapsed height for indicator icons and container frames.
+    var collapsedIndicatorHeight: CGFloat {
         if hideOnClosed && notchState == .closed {
             return 0
         }
@@ -124,6 +123,11 @@ class BoringViewModel: NSObject, ObservableObject {
             return FloatingTabConstants.collapsedSize.height
         }
         return closedNotchSize.height
+    }
+
+    /// Total collapsed height — lyrics are now in a separate window, no extra height needed.
+    var effectiveClosedNotchHeight: CGFloat {
+        collapsedIndicatorHeight
     }
 
     var chinHeight: CGFloat {
@@ -209,9 +213,10 @@ class BoringViewModel: NSObject, ObservableObject {
     }
 
     func open() {
+        BelowNotchLyricsController.shared.hide()
         self.notchSize = openNotchSize
         self.notchState = .open
-        
+
         // Force music information update when notch is opened
         MusicManager.shared.forceUpdate()
     }
@@ -238,6 +243,12 @@ class BoringViewModel: NSObject, ObservableObject {
             coordinator.currentView = .shelf
         } else if !coordinator.openLastTabByDefault {
             coordinator.currentView = .home
+        }
+
+        // Show below-notch lyrics after collapse animation settles
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            guard let self, self.notchState == .closed else { return }
+            BelowNotchLyricsController.shared.showIfNeeded(screenUUID: self.screenUUID)
         }
     }
 

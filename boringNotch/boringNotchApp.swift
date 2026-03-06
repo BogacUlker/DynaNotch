@@ -161,6 +161,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
             self.window = nil
         }
+
+        BelowNotchLyricsController.shared.hide()
     }
 
     private func cleanupDragDetectors() {
@@ -556,6 +558,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
         }
+
+        BelowNotchLyricsController.shared.updatePositionIfVisible()
     }
 
     @objc func togglePopover(_ sender: Any?) {
