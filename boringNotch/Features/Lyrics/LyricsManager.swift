@@ -16,7 +16,6 @@ import os
 enum LyricsDisplayMode: String, CaseIterable, Identifiable, Defaults.Serializable {
     case compact = "Compact"
     case karaoke = "Karaoke"
-    case belowNotch = "Below Notch"
 
     var id: String { rawValue }
 }

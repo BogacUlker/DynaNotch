@@ -412,10 +412,7 @@ struct NotchHomeView: View {
     }
 
     private var shouldShowLyrics: Bool {
-        Defaults[.enableLyrics]
-            && lyricsManager.hasLyrics
-            && !lyricsManager.isFetching
-            && Defaults[.lyricsDisplayMode] != .belowNotch
+        Defaults[.enableLyrics] && lyricsManager.hasLyrics && !lyricsManager.isFetching
     }
 
     private var lyricsAccentColor: Color {
