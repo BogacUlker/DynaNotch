@@ -210,60 +210,60 @@ final class F1Provider: SportProvider {
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
             let mrData = json["MRData"] as? [String: Any] ?? [:]
             let raceTable = mrData["RaceTable"] as? [String: Any] ?? [:]
+            let season = raceTable["season"] as? String ?? "unknown"
             let racesArr = raceTable["Races"] as? [[String: Any]] ?? []
 
             races = racesArr.compactMap(parseRace).sorted { $0.date < $1.date }
+            let totalSessions = races.reduce(0) { $0 + $1.sessions.count }
+            logger.info("F1 calendar (\(season)): \(self.races.count) races, \(totalSessions) sessions")
         } catch {
             logger.error("F1 calendar error: \(error.localizedDescription)")
         }
     }
 
     private func refreshDriverStandings() async {
-        // Try current season first, fall back to previous year if empty (e.g. new season not started)
-        let year = Calendar.current.component(.year, from: Date())
-        for season in ["current", "\(year - 1)"] {
-            do {
-                let url = URL(string: "https://api.jolpi.ca/ergast/f1/\(season)/driverStandings.json")!
-                let (data, _) = try await URLSession.shared.data(from: url)
-                let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
-                let mrData = json["MRData"] as? [String: Any] ?? [:]
-                let table = mrData["StandingsTable"] as? [String: Any] ?? [:]
-                let lists = table["StandingsLists"] as? [[String: Any]] ?? []
-                guard let first = lists.first else {
-                    logger.info("F1 WDC (\(season)): StandingsLists empty, trying fallback")
-                    continue
-                }
+        do {
+            let url = URL(string: "https://api.jolpi.ca/ergast/f1/current/driverStandings.json")!
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
+            let mrData = json["MRData"] as? [String: Any] ?? [:]
+            let table = mrData["StandingsTable"] as? [String: Any] ?? [:]
+            let season = table["season"] as? String ?? "unknown"
+            let lists = table["StandingsLists"] as? [[String: Any]] ?? []
+
+            if let first = lists.first {
                 let standings = first["DriverStandings"] as? [[String: Any]] ?? []
                 self.driverStandings = standings.compactMap(self.parseDriverStanding)
                 logger.info("F1 WDC (\(season)): parsed \(self.driverStandings.count) drivers")
-                return
-            } catch {
-                logger.error("F1 WDC error (\(season)): \(error.localizedDescription)")
+            } else {
+                self.driverStandings = []
+                logger.info("F1 WDC (\(season)): no standings yet (season not started)")
             }
+        } catch {
+            logger.error("F1 WDC error: \(error.localizedDescription)")
         }
     }
 
     private func refreshConstructorStandings() async {
-        let year = Calendar.current.component(.year, from: Date())
-        for season in ["current", "\(year - 1)"] {
-            do {
-                let url = URL(string: "https://api.jolpi.ca/ergast/f1/\(season)/constructorStandings.json")!
-                let (data, _) = try await URLSession.shared.data(from: url)
-                let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
-                let mrData = json["MRData"] as? [String: Any] ?? [:]
-                let table = mrData["StandingsTable"] as? [String: Any] ?? [:]
-                let lists = table["StandingsLists"] as? [[String: Any]] ?? []
-                guard let first = lists.first else {
-                    logger.info("F1 WCC (\(season)): StandingsLists empty, trying fallback")
-                    continue
-                }
+        do {
+            let url = URL(string: "https://api.jolpi.ca/ergast/f1/current/constructorStandings.json")!
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] ?? [:]
+            let mrData = json["MRData"] as? [String: Any] ?? [:]
+            let table = mrData["StandingsTable"] as? [String: Any] ?? [:]
+            let season = table["season"] as? String ?? "unknown"
+            let lists = table["StandingsLists"] as? [[String: Any]] ?? []
+
+            if let first = lists.first {
                 let standings = first["ConstructorStandings"] as? [[String: Any]] ?? []
                 self.constructorStandings = standings.compactMap(self.parseConstructorStanding)
                 logger.info("F1 WCC (\(season)): parsed \(self.constructorStandings.count) constructors")
-                return
-            } catch {
-                logger.error("F1 WCC error (\(season)): \(error.localizedDescription)")
+            } else {
+                self.constructorStandings = []
+                logger.info("F1 WCC (\(season)): no standings yet (season not started)")
             }
+        } catch {
+            logger.error("F1 WCC error: \(error.localizedDescription)")
         }
     }
 
@@ -274,17 +274,44 @@ final class F1Provider: SportProvider {
               let dateStr = data["date"] as? String
         else { return nil }
 
-        let timeStr = data["time"] as? String ?? "14:00:00Z"
-        let fullDate = "\(dateStr)T\(timeStr)"
         let formatter = ISO8601DateFormatter()
-        let date = formatter.date(from: fullDate) ?? Date.distantFuture
 
+        let timeStr = data["time"] as? String ?? "14:00:00Z"
+        let raceDate = formatter.date(from: "\(dateStr)T\(timeStr)") ?? Date.distantFuture
+
+        // Parse all weekend sessions from API
+        let sessionKeys: [(key: String, name: String)] = [
+            ("FirstPractice", "FP1"),
+            ("SecondPractice", "FP2"),
+            ("ThirdPractice", "FP3"),
+            ("Qualifying", "Qualifying"),
+            ("Sprint", "Sprint"),
+            ("SprintQualifying", "Sprint Qualifying"),
+            ("SprintShootout", "Sprint Shootout"),
+        ]
+
+        var sessions: [F1RaceSession] = []
+        for (key, name) in sessionKeys {
+            if let obj = data[key] as? [String: Any],
+               let d = obj["date"] as? String,
+               let t = obj["time"] as? String,
+               let date = formatter.date(from: "\(d)T\(t)")
+            {
+                sessions.append(F1RaceSession(type: name, date: date))
+            }
+        }
+        sessions.append(F1RaceSession(type: "Race", date: raceDate))
+        sessions.sort { $0.date < $1.date }
+
+        let location = circuit["Location"] as? [String: Any] ?? [:]
         return F1Race(
             id: "\(round)",
             round: round,
             raceName: raceName,
             circuitName: circuit["circuitName"] as? String ?? "",
-            date: date
+            country: location["country"] as? String ?? "",
+            date: raceDate,
+            sessions: sessions
         )
     }
 

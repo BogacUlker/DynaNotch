@@ -117,7 +117,7 @@ class BoringViewModel: NSObject, ObservableObject {
     // Computed property for effective notch height
     var effectiveClosedNotchHeight: CGFloat {
         if isFloatingTab && notchState == .closed {
-            return FloatingTabConstants.collapsedSize.height
+            return hideOnClosed ? 0 : FloatingTabConstants.collapsedSize.height
         }
         let currentScreen = screenUUID.flatMap { NSScreen.screen(withUUID: $0) }
         let noNotchAndFullscreen = hideOnClosed && (currentScreen?.safeAreaInsets.top ?? 0 <= 0 || currentScreen == nil)

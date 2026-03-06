@@ -33,8 +33,27 @@ struct F1Race: Identifiable {
     let round: Int
     let raceName: String
     let circuitName: String
+    let country: String
     let date: Date
     var sessions: [F1RaceSession] = []
+
+    var countryFlag: String {
+        Self.flagMap[country] ?? "🏁"
+    }
+
+    private static let flagMap: [String: String] = [
+        "Australia": "🇦🇺", "Austria": "🇦🇹", "Azerbaijan": "🇦🇿",
+        "Bahrain": "🇧🇭", "Belgium": "🇧🇪", "Brazil": "🇧🇷",
+        "Canada": "🇨🇦", "China": "🇨🇳", "France": "🇫🇷",
+        "Germany": "🇩🇪", "Hungary": "🇭🇺", "India": "🇮🇳",
+        "Italy": "🇮🇹", "Japan": "🇯🇵", "Korea": "🇰🇷",
+        "Malaysia": "🇲🇾", "Mexico": "🇲🇽", "Monaco": "🇲🇨",
+        "Netherlands": "🇳🇱", "Portugal": "🇵🇹", "Qatar": "🇶🇦",
+        "Russia": "🇷🇺", "Saudi Arabia": "🇸🇦", "Singapore": "🇸🇬",
+        "South Africa": "🇿🇦", "Spain": "🇪🇸", "Turkey": "🇹🇷",
+        "UAE": "🇦🇪", "UK": "🇬🇧", "United Kingdom": "🇬🇧",
+        "USA": "🇺🇸", "United States": "🇺🇸", "Vietnam": "🇻🇳",
+    ]
 }
 
 struct F1RaceSession: Identifiable {

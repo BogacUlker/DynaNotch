@@ -169,6 +169,7 @@
 		FF10000A000000010000000A /* SportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20000A000000010000000A /* SportsView.swift */; };
 		FF10000B000000010000000B /* SportsCollapsedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20000B000000010000000B /* SportsCollapsedView.swift */; };
 		FF10000C000000010000000C /* SportsSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20000C000000010000000C /* SportsSettings.swift */; };
+		FF10000D000000010000000D /* EuroLeagueProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF20000D000000010000000D /* EuroLeagueProvider.swift */; };
 		D29C043109C6470994315D4A /* AdaptiveNotchShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = B94CDF7032C743ACAA9D5F74 /* AdaptiveNotchShape.swift */; };
 		F38DE6482D8243E7008B5C6D /* BatteryActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F38DE6472D8243E2008B5C6D /* BatteryActivityManager.swift */; };
 /* End PBXBuildFile section */
@@ -364,6 +365,7 @@
 		FF20000A000000010000000A /* SportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportsView.swift; sourceTree = "<group>"; };
 		FF20000B000000010000000B /* SportsCollapsedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportsCollapsedView.swift; sourceTree = "<group>"; };
 		FF20000C000000010000000C /* SportsSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SportsSettings.swift; sourceTree = "<group>"; };
+		FF20000D000000010000000D /* EuroLeagueProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EuroLeagueProvider.swift; sourceTree = "<group>"; };
 		F38DE6472D8243E2008B5C6D /* BatteryActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatteryActivityManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -925,6 +927,7 @@
 				FF2000060000000100000006 /* FootballProvider.swift */,
 				FF2000070000000100000007 /* BasketballProvider.swift */,
 				FF2000080000000100000008 /* F1Provider.swift */,
+				FF20000D000000010000000D /* EuroLeagueProvider.swift */,
 			);
 			path = Providers;
 			sourceTree = "<group>";
@@ -1145,6 +1148,7 @@
 				FF1000060000000100000006 /* FootballProvider.swift in Sources */,
 				FF1000070000000100000007 /* BasketballProvider.swift in Sources */,
 				FF1000080000000100000008 /* F1Provider.swift in Sources */,
+				FF10000D000000010000000D /* EuroLeagueProvider.swift in Sources */,
 				FF1000090000000100000009 /* SportsManager.swift in Sources */,
 				FF10000A000000010000000A /* SportsView.swift in Sources */,
 				FF10000B000000010000000B /* SportsCollapsedView.swift in Sources */,

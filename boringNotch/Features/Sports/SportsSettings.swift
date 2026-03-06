@@ -13,10 +13,12 @@ struct SportsSettings: View {
     @Default(.enableSports) var enableSports
     @Default(.enableFootball) var enableFootball
     @Default(.enableBasketball) var enableBasketball
+    @Default(.enableEuroLeague) var enableEuroLeague
     @Default(.enableF1) var enableF1
     @Default(.sportsFootballLeagues) var footballLeagues
     @Default(.sportsFavoriteFootballTeam) var favoriteFootballTeam
     @Default(.sportsFavoriteBasketballTeam) var favoriteBasketballTeam
+    @Default(.sportsFavoriteEuroLeagueTeam) var favoriteEuroLeagueTeam
     @Default(.sportsFavoriteF1Driver) var favoriteF1Driver
     @Default(.sportsSlot1) var slot1
     @Default(.sportsSlot2) var slot2
@@ -51,6 +53,7 @@ struct SportsSettings: View {
                 Section("Sports") {
                     Toggle("⚽ Football", isOn: $enableFootball)
                     Toggle("🏀 Basketball (NBA)", isOn: $enableBasketball)
+                    Toggle("🏀 EuroLeague", isOn: $enableEuroLeague)
                     Toggle("🏎️ Formula 1", isOn: $enableF1)
                 }
 
@@ -89,12 +92,25 @@ struct SportsSettings: View {
                 if enableBasketball {
                     Section("Favorite NBA Team") {
                         favoritePickerOrField(
-                            items: manager.basketballProvider.allTeams(),
+                            items: manager.basketballProvider.allNBATeams(),
                             selection: $favoriteBasketballTeam,
                             valuePath: \.abbrev,
                             labelPath: \.displayName,
-                            hasData: manager.basketballProvider.hasStandingsData,
+                            hasData: manager.basketballProvider.hasNBAStandingsData,
                             placeholder: "Team abbreviation (e.g. LAL, BOS, GSW)"
+                        )
+                    }
+                }
+
+                if enableEuroLeague {
+                    Section("Favorite EuroLeague Team") {
+                        favoritePickerOrField(
+                            items: manager.basketballProvider.allEuroLeagueTeams(),
+                            selection: $favoriteEuroLeagueTeam,
+                            valuePath: \.abbrev,
+                            labelPath: \.displayName,
+                            hasData: manager.basketballProvider.hasEuroLeagueStandingsData,
+                            placeholder: "Team code (e.g. ULK, FEN, PAO)"
                         )
                     }
                 }
@@ -156,6 +172,9 @@ struct SportsSettings: View {
         .onChange(of: enableBasketball) { _, newValue in
             if !newValue { resetInvalidSlots() }
         }
+        .onChange(of: enableEuroLeague) { _, newValue in
+            if !newValue { resetInvalidSlots() }
+        }
         .onChange(of: enableF1) { _, newValue in
             if !newValue { resetInvalidSlots() }
         }
@@ -202,7 +221,7 @@ struct SportsSettings: View {
     /// Trigger for .task(id:) — re-runs when sport toggles or league selection changes.
     private var pickerTaskTrigger: String {
         let leagueIds = footballLeagues.map(\.id).sorted().joined(separator: ",")
-        return "\(enableSports)-\(enableFootball)-\(enableBasketball)-\(enableF1)-\(leagueIds)"
+        return "\(enableSports)-\(enableFootball)-\(enableBasketball)-\(enableEuroLeague)-\(enableF1)-\(leagueIds)"
     }
 
     /// Reset slot selections that reference a now-disabled sport.
@@ -219,7 +238,7 @@ struct SportsSettings: View {
         if enableFootball {
             result.append(contentsOf: [.footballLive, .footballFixture, .footballStandings])
         }
-        if enableBasketball {
+        if enableBasketball || enableEuroLeague {
             result.append(contentsOf: [.basketballLive, .basketballFixture, .basketballStandings])
         }
         if enableF1 {

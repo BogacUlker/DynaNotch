@@ -49,10 +49,11 @@ final class SportsManager: ObservableObject {
         // React to sport toggles changing
         let footballPub = Defaults.publisher(.enableFootball).map { _ in () }.eraseToAnyPublisher()
         let basketballPub = Defaults.publisher(.enableBasketball).map { _ in () }.eraseToAnyPublisher()
+        let euroLeaguePub = Defaults.publisher(.enableEuroLeague).map { _ in () }.eraseToAnyPublisher()
         let f1Pub = Defaults.publisher(.enableF1).map { _ in () }.eraseToAnyPublisher()
         let leaguesPub = Defaults.publisher(.sportsFootballLeagues).map { _ in () }.eraseToAnyPublisher()
 
-        Publishers.MergeMany([footballPub, basketballPub, f1Pub, leaguesPub])
+        Publishers.MergeMany([footballPub, basketballPub, euroLeaguePub, f1Pub, leaguesPub])
             .debounce(for: .seconds(1), scheduler: RunLoop.main)
             .sink { [weak self] _ in
                 guard Defaults[.enableSports] else { return }
@@ -111,7 +112,7 @@ final class SportsManager: ObservableObject {
                     return self.footballProvider.liveEvents()
                 }
             }
-            if Defaults[.enableBasketball] {
+            if Defaults[.enableBasketball] || Defaults[.enableEuroLeague] {
                 group.addTask {
                     try? await self.basketballProvider.refresh()
                     return self.basketballProvider.liveEvents()
@@ -139,7 +140,7 @@ final class SportsManager: ObservableObject {
 
         let enabledLeagues = Defaults[.sportsFootballLeagues]
         let needsFootball = Defaults[.enableFootball] && !footballProvider.hasStandingsForAll(leagues: enabledLeagues)
-        let needsBasketball = Defaults[.enableBasketball] && !basketballProvider.hasStandingsData
+        let needsBasketball = (Defaults[.enableBasketball] || Defaults[.enableEuroLeague]) && !basketballProvider.hasStandingsData
         let needsF1 = Defaults[.enableF1] && !f1Provider.hasDriverData
 
         logger.info("ensurePickerData: needs football=\(needsFootball), basketball=\(needsBasketball), f1=\(needsF1)")
