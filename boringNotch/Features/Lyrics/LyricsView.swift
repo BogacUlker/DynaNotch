@@ -258,3 +258,67 @@ struct LyricsKaraokeView: View {
         return min(max(progressed, 0), musicManager.songDuration)
     }
 }
+
+// MARK: - Below Notch Lyrics View
+
+/// Displays the active lyric line inside the collapsed notch bar, below the indicators.
+/// Fixed width matching the notch, marquee scroll for long text, album art color tinting.
+struct LyricsBelowNotchView: View {
+    @ObservedObject private var lyricsManager = LyricsManager.shared
+    @ObservedObject private var musicManager = MusicManager.shared
+
+    private var accentColor: Color {
+        Defaults[.playerColorTinting]
+            ? Color(nsColor: musicManager.avgColor).ensureMinimumBrightness(factor: 0.6)
+            : .gray
+    }
+
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 0.25)) { timeline in
+            let elapsed = currentElapsed(at: timeline.date)
+            let _ = lyricsManager.updatePosition(elapsed)
+
+            lyricPill
+        }
+    }
+
+    private var displayText: String {
+        if !lyricsManager.currentLineText.isEmpty {
+            return lyricsManager.currentLineText
+        }
+        if !lyricsManager.plainText.isEmpty {
+            return lyricsManager.plainText.components(separatedBy: "\n").first ?? ""
+        }
+        return ""
+    }
+
+    private var lyricPill: some View {
+        GeometryReader { geo in
+            MarqueeText(
+                .constant(displayText),
+                font: .system(size: 9, weight: .medium),
+                nsFont: .caption2,
+                textColor: .white.opacity(0.9),
+                minDuration: 3,
+                frameWidth: geo.size.width - 20
+            )
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 3)
+            .background(
+                Capsule()
+                    .fill(accentColor.opacity(0.35))
+                    .shadow(color: accentColor.opacity(0.3), radius: 4, x: 0, y: 0)
+            )
+        }
+        .frame(height: 18)
+        .frame(maxWidth: .infinity)
+        .animation(.easeInOut(duration: 0.3), value: lyricsManager.currentLineIndex)
+    }
+
+    private func currentElapsed(at date: Date) -> TimeInterval {
+        guard musicManager.isPlaying else { return musicManager.elapsedTime }
+        let delta = date.timeIntervalSince(musicManager.timestampDate)
+        let progressed = musicManager.elapsedTime + (delta * musicManager.playbackRate)
+        return min(max(progressed, 0), musicManager.songDuration)
+    }
+}

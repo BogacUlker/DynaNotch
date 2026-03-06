@@ -2032,7 +2032,7 @@ struct LyricsSettings: View {
             } header: {
                 Text("Appearance")
             } footer: {
-                Text("Compact shows a single scrolling line. Karaoke shows multiple synchronized lines.")
+                Text("Compact shows a single scrolling line. Karaoke shows multiple synchronized lines. Below Notch displays lyrics beneath the notch panel.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

@@ -39,6 +39,7 @@ struct ContentView: View {
     @ObservedObject var quickNotesManager = QuickNotesManager.shared
     @ObservedObject var weatherManager = WeatherManager.shared
     @ObservedObject var sportsManager = SportsManager.shared
+    @ObservedObject var lyricsManager = LyricsManager.shared
     @State private var hoverTask: Task<Void, Never>?
     @State private var isHovering: Bool = false
     @State private var anyDropDebounceTask: Task<Void, Never>?
@@ -454,6 +455,20 @@ struct ContentView: View {
                       .fixedSize()
               }
               .zIndex(2)
+
+            // Below Notch lyrics — inside collapsed notch bar
+            if vm.notchState == .closed
+                && Defaults[.enableLyrics]
+                && Defaults[.lyricsDisplayMode] == .belowNotch
+                && lyricsManager.hasLyrics
+                && !lyricsManager.isFetching
+                && musicManager.isPlaying {
+                LyricsBelowNotchView()
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 4)
+                    .transition(.opacity)
+            }
+
             if vm.notchState == .open {
                 VStack {
                     switch coordinator.currentView {
