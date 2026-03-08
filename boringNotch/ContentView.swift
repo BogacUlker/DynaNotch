@@ -163,6 +163,26 @@ struct ContentView: View {
                     .padding([.horizontal, .bottom], vm.notchState == .open ? 12 : 0)
                     .background(.black)
                     .clipShape(currentClipShape)
+                    .overlay(alignment: .bottom) {
+                        // Below-notch lyrics background extension — same black, extends from notch
+                        if vm.notchState == .closed
+                            && Defaults[.enableLyrics]
+                            && Defaults[.lyricsDisplayMode] == .belowNotch
+                            && musicManager.isPlaying
+                            && lyricsManager.hasLyrics
+                            && !lyricsManager.isFetching
+                        {
+                            UnevenRoundedRectangle(
+                                topLeadingRadius: 0,
+                                bottomLeadingRadius: 12,
+                                bottomTrailingRadius: 12,
+                                topTrailingRadius: 0
+                            )
+                            .fill(.black)
+                            .frame(height: 24)
+                            .offset(y: 24)
+                        }
+                    }
                     .overlay {
                         if vm.isFloatingTab && vm.notchState == .closed {
                             currentClipShape

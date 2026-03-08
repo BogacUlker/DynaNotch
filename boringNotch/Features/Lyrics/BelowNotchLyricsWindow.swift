@@ -37,7 +37,7 @@ final class BelowNotchLyricsPanel: NSPanel {
         ignoresMouseEvents = true
         isMovable = false
         isReleasedWhenClosed = false
-        level = .mainMenu + 2
+        level = .mainMenu + 4
 
         collectionBehavior = [
             .stationary,
@@ -63,24 +63,33 @@ final class BelowNotchLyricsController {
     private var panel: BelowNotchLyricsPanel?
     private var cancellables = Set<AnyCancellable>()
     private var currentScreenUUID: String?
+    private var currentNotchWidth: CGFloat?
 
-    private let lyricsWidth: CGFloat = 220
-    private let lyricsHeight: CGFloat = 24
+    private let lyricsVisibleHeight: CGFloat = 24
 
     private init() {
         setupObservers()
+        // Evaluate once at init — Combine sinks won't fire for the current value.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            self?.reevaluateVisibility()
+        }
     }
 
     // MARK: - Public API
 
     /// Show the lyrics panel below the notch on the given screen, if conditions are met.
-    func showIfNeeded(screenUUID: String?) {
+    /// - Parameters:
+    ///   - screenUUID: The screen to position on.
+    ///   - notchWidth: The actual visible notch width (including collapsed indicators).
+    ///                 If nil, falls back to `closedNotchSize.width`.
+    func showIfNeeded(screenUUID: String?, notchWidth: CGFloat? = nil) {
         guard shouldShow else {
             hide()
             return
         }
 
         currentScreenUUID = screenUUID
+        if let notchWidth { currentNotchWidth = notchWidth }
 
         if panel == nil {
             createPanel()
@@ -120,7 +129,7 @@ final class BelowNotchLyricsController {
     }
 
     private func createPanel() {
-        let rect = NSRect(x: 0, y: 0, width: lyricsWidth, height: lyricsHeight)
+        let rect = NSRect(x: 0, y: 0, width: 300, height: lyricsVisibleHeight)
         let style: NSWindow.StyleMask = [.borderless, .nonactivatingPanel, .utilityWindow]
         let p = BelowNotchLyricsPanel(contentRect: rect, styleMask: style, backing: .buffered, defer: false)
 
@@ -141,15 +150,17 @@ final class BelowNotchLyricsController {
         guard let screen else { return }
 
         let screenFrame = screen.frame
-        let closedHeight = getClosedNotchSize(screenUUID: screenUUID).height
-        let closedWidth = getClosedNotchSize(screenUUID: screenUUID).width
+        let closedSize = getClosedNotchSize(screenUUID: screenUUID)
+        let closedHeight = closedSize.height
 
-        // Size the panel to match the notch width
-        let panelWidth = max(closedWidth, lyricsWidth)
-        panel.setContentSize(NSSize(width: panelWidth, height: lyricsHeight))
+        // Match the notch background extension width from ContentView
+        let singleExt = 2 * max(0, closedHeight - 12) + 20
+        let textWidth = (currentNotchWidth ?? (closedSize.width + singleExt)) + 16
 
-        let x = screenFrame.midX - panelWidth / 2
-        let y = screenFrame.maxY - closedHeight - lyricsHeight - 2
+        panel.setContentSize(NSSize(width: textWidth, height: lyricsVisibleHeight))
+
+        let x = screenFrame.midX - textWidth / 2
+        let y = screenFrame.maxY - closedHeight - lyricsVisibleHeight
 
         panel.setFrameOrigin(NSPoint(x: x, y: y))
     }
@@ -196,7 +207,6 @@ final class BelowNotchLyricsController {
 
     private func reevaluateVisibility() {
         if shouldShow {
-            // Only show if panel is not already visible
             if panel == nil || panel?.alphaValue == 0 {
                 showIfNeeded(screenUUID: currentScreenUUID)
             }
@@ -208,32 +218,37 @@ final class BelowNotchLyricsController {
 
 // MARK: - BelowNotchLyricsContent
 
-/// SwiftUI content displayed inside the lyrics panel.
+/// Transparent SwiftUI content — only white text, no background.
+/// The black background comes from the notch window's extended shape.
 struct BelowNotchLyricsContent: View {
     @ObservedObject private var musicManager = MusicManager.shared
     @ObservedObject private var lyricsManager = LyricsManager.shared
+
+    @State private var displayedLine: String = "♪"
+    @State private var lineID: UUID = UUID()
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 0.25)) { timeline in
             let elapsed = computeElapsed(at: timeline.date)
             let _ = lyricsManager.updatePosition(elapsed)
+            let currentLine = lyricsManager.currentLineText.isEmpty ? "♪" : lyricsManager.currentLineText
 
-            let text = lyricsManager.currentLineText.isEmpty ? "♪" : lyricsManager.currentLineText
-            let glowColor = Defaults[.playerColorTinting]
-                ? Color(nsColor: musicManager.avgColor).opacity(0.5)
-                : Color.white.opacity(0.3)
-
-            Text(text)
+            Text(displayedLine)
+                .id(lineID)
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(.white)
-                .shadow(color: glowColor, radius: 4)
+                .foregroundColor(.white.opacity(0.85))
                 .lineLimit(1)
-                .frame(maxWidth: .infinity)
-                .frame(height: 24)
-                .background(
-                    Capsule()
-                        .fill(.black.opacity(0.7))
-                )
+                .transition(.opacity.animation(.easeInOut(duration: 0.35)))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .onChange(of: currentLine) { _, newLine in
+                    withAnimation(.easeInOut(duration: 0.35)) {
+                        displayedLine = newLine
+                        lineID = UUID()
+                    }
+                }
+                .onAppear {
+                    displayedLine = currentLine
+                }
         }
     }
 
