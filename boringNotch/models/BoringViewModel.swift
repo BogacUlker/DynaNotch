@@ -213,7 +213,6 @@ class BoringViewModel: NSObject, ObservableObject {
     }
 
     func open() {
-        BelowNotchLyricsController.shared.hide()
         self.notchSize = openNotchSize
         self.notchState = .open
 
@@ -245,11 +244,6 @@ class BoringViewModel: NSObject, ObservableObject {
             coordinator.currentView = .home
         }
 
-        // Show below-notch lyrics after collapse animation settles
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            guard let self, self.notchState == .closed else { return }
-            BelowNotchLyricsController.shared.showIfNeeded(screenUUID: self.screenUUID)
-        }
     }
 
     func closeHello() {

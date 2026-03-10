@@ -77,13 +77,14 @@ struct ContentView: View {
     }
 
     private var currentClipShape: AdaptiveNotchShape {
-        AdaptiveNotchShape(
+        let closedBottom: CGFloat = belowNotchLyricsVisible ? 0 : cornerRadiusInsets.closed.bottom
+        return AdaptiveNotchShape(
             isFloatingTab: vm.isFloatingTab,
             isExpanded: vm.notchState == .open,
             topCornerRadius: topCornerRadius,
             bottomCornerRadius: ((vm.notchState == .open) && Defaults[.cornerRadiusScaling])
                 ? cornerRadiusInsets.opened.bottom
-                : cornerRadiusInsets.closed.bottom
+                : closedBottom
         )
     }
 
@@ -141,6 +142,15 @@ struct ContentView: View {
         return chinWidth
     }
 
+    private var belowNotchLyricsVisible: Bool {
+        vm.notchState == .closed
+            && Defaults[.enableLyrics]
+            && Defaults[.lyricsDisplayMode] == .belowNotch
+            && musicManager.isPlaying
+            && lyricsManager.hasLyrics
+            && !lyricsManager.isFetching
+    }
+
     var body: some View {
         // Calculate scale based on gesture progress only
         let gestureScale: CGFloat = {
@@ -163,26 +173,6 @@ struct ContentView: View {
                     .padding([.horizontal, .bottom], vm.notchState == .open ? 12 : 0)
                     .background(.black)
                     .clipShape(currentClipShape)
-                    .overlay(alignment: .bottom) {
-                        // Below-notch lyrics background extension — same black, extends from notch
-                        if vm.notchState == .closed
-                            && Defaults[.enableLyrics]
-                            && Defaults[.lyricsDisplayMode] == .belowNotch
-                            && musicManager.isPlaying
-                            && lyricsManager.hasLyrics
-                            && !lyricsManager.isFetching
-                        {
-                            UnevenRoundedRectangle(
-                                topLeadingRadius: 0,
-                                bottomLeadingRadius: 12,
-                                bottomTrailingRadius: 12,
-                                topTrailingRadius: 0
-                            )
-                            .fill(.black)
-                            .frame(height: 24)
-                            .offset(y: 24)
-                        }
-                    }
                     .overlay {
                         if vm.isFloatingTab && vm.notchState == .closed {
                             currentClipShape
@@ -196,6 +186,11 @@ struct ContentView: View {
                                 .frame(height: 1)
                                 .padding(.horizontal, topCornerRadius)
                         }
+                    }
+                    .overlay(alignment: .bottom) {
+                        BelowNotchLyricsOverlay()
+                            .opacity(belowNotchLyricsVisible ? 1 : 0)
+                            .animation(.easeInOut(duration: 0.25), value: belowNotchLyricsVisible)
                     }
                     .shadow(
                         color: ((vm.notchState == .open || isHovering) && Defaults[.enableShadow])
@@ -473,7 +468,7 @@ struct ContentView: View {
               }
               .conditionalModifier((coordinator.sneakPeek.show && (coordinator.sneakPeek.type == .music) && vm.notchState == .closed && !vm.hideOnClosed && Defaults[.sneakPeekStyles] == .standard) || (coordinator.sneakPeek.show && (coordinator.sneakPeek.type != .music) && (vm.notchState == .closed))) { view in
                   view
-                      .fixedSize()
+                      .fixedSize(horizontal: false, vertical: true)
               }
               .zIndex(2)
             if vm.notchState == .open {
