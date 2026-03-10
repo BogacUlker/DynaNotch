@@ -77,14 +77,13 @@ struct ContentView: View {
     }
 
     private var currentClipShape: AdaptiveNotchShape {
-        let closedBottom: CGFloat = belowNotchLyricsVisible ? 0 : cornerRadiusInsets.closed.bottom
-        return AdaptiveNotchShape(
+        AdaptiveNotchShape(
             isFloatingTab: vm.isFloatingTab,
             isExpanded: vm.notchState == .open,
             topCornerRadius: topCornerRadius,
             bottomCornerRadius: ((vm.notchState == .open) && Defaults[.cornerRadiusScaling])
                 ? cornerRadiusInsets.opened.bottom
-                : closedBottom
+                : cornerRadiusInsets.closed.bottom
         )
     }
 
@@ -186,11 +185,6 @@ struct ContentView: View {
                                 .frame(height: 1)
                                 .padding(.horizontal, topCornerRadius)
                         }
-                    }
-                    .overlay(alignment: .bottom) {
-                        BelowNotchLyricsOverlay()
-                            .opacity(belowNotchLyricsVisible ? 1 : 0)
-                            .animation(.easeInOut(duration: 0.25), value: belowNotchLyricsVisible)
                     }
                     .shadow(
                         color: ((vm.notchState == .open || isHovering) && Defaults[.enableShadow])
@@ -471,6 +465,9 @@ struct ContentView: View {
                       .fixedSize(horizontal: false, vertical: true)
               }
               .zIndex(2)
+            if belowNotchLyricsVisible {
+                BelowNotchLyricsStrip(notchWidth: vm.closedNotchSize.width)
+            }
             if vm.notchState == .open {
                 VStack {
                     switch coordinator.currentView {

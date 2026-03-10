@@ -125,9 +125,19 @@ class BoringViewModel: NSObject, ObservableObject {
         return closedNotchSize.height
     }
 
-    /// Total collapsed height — lyrics are now in a separate window, no extra height needed.
+    /// Total collapsed height — includes below-notch lyrics extension when active.
     var effectiveClosedNotchHeight: CGFloat {
-        collapsedIndicatorHeight
+        let base = collapsedIndicatorHeight
+        if notchState == .closed
+            && Defaults[.enableLyrics]
+            && Defaults[.lyricsDisplayMode] == .belowNotch
+            && MusicManager.shared.isPlaying
+            && LyricsManager.shared.hasLyrics
+            && !LyricsManager.shared.isFetching
+        {
+            return base + 24
+        }
+        return base
     }
 
     var chinHeight: CGFloat {

@@ -8,14 +8,14 @@
 
 import SwiftUI
 
-/// Below-notch lyrics overlay — renders as a seamless black extension hanging below
-/// the notch shape. Uses the parent's full width so it matches the notch exactly.
-/// Offset by lyricsHeight - 1 to create a 1px overlap, eliminating any visible seam.
-struct BelowNotchLyricsOverlay: View {
+/// Inline lyrics strip rendered inside the collapsed notch, below the indicators.
+/// No separate background — the notch's own AdaptiveNotchShape provides the black fill.
+/// Uses a fixed width equal to closedNotchSize.width so it never inflates the parent VStack.
+struct BelowNotchLyricsStrip: View {
     @ObservedObject private var musicManager = MusicManager.shared
     @ObservedObject private var lyricsManager = LyricsManager.shared
 
-    private let lyricsHeight: CGFloat = 24
+    let notchWidth: CGFloat
 
     var body: some View {
         TimelineView(.animation(minimumInterval: 0.25)) { timeline in
@@ -27,17 +27,9 @@ struct BelowNotchLyricsOverlay: View {
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.white.opacity(0.85))
                 .lineLimit(1)
-                .frame(maxWidth: .infinity, maxHeight: lyricsHeight)
-                .background(
-                    UnevenRoundedRectangle(
-                        topLeadingRadius: 0,
-                        bottomLeadingRadius: 12,
-                        bottomTrailingRadius: 12,
-                        topTrailingRadius: 0
-                    )
-                    .fill(.black)
-                )
-                .offset(y: lyricsHeight - 1)
+                .truncationMode(.tail)
+                .frame(width: notchWidth, height: 24)
+                .frame(maxWidth: .infinity)
                 .animation(.easeInOut(duration: 0.35), value: currentLine)
         }
     }
