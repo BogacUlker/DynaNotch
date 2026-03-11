@@ -121,7 +121,7 @@
 		AA1000030000000100000003 /* LyricsCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000030000000100000003 /* LyricsCache.swift */; };
 		AA1000040000000100000004 /* LyricsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000040000000100000004 /* LyricsManager.swift */; };
 		AA1000050000000100000005 /* LyricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000050000000100000005 /* LyricsView.swift */; };
-		AA1000070000000100000007 /* BelowNotchLyricsOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA2000070000000100000007 /* BelowNotchLyricsOverlay.swift */; };
+
 
 		B10348D92C74E56000475897 /* ConditionalModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10348D82C74E56000475897 /* ConditionalModifier.swift */; };
 		B10F84A32C6C9596009F3026 /* TestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10F84A22C6C9596009F3026 /* TestView.swift */; };
@@ -322,7 +322,7 @@
 		AA2000030000000100000003 /* LyricsCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsCache.swift; sourceTree = "<group>"; };
 		AA2000040000000100000004 /* LyricsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsManager.swift; sourceTree = "<group>"; };
 		AA2000050000000100000005 /* LyricsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsView.swift; sourceTree = "<group>"; };
-		AA2000070000000100000007 /* BelowNotchLyricsOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BelowNotchLyricsOverlay.swift; sourceTree = "<group>"; };
+
 
 		B10348D82C74E56000475897 /* ConditionalModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalModifier.swift; sourceTree = "<group>"; };
 		B10F84A22C6C9596009F3026 /* TestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestView.swift; sourceTree = "<group>"; };
@@ -761,7 +761,7 @@
 				AA2000030000000100000003 /* LyricsCache.swift */,
 				AA2000040000000100000004 /* LyricsManager.swift */,
 				AA2000050000000100000005 /* LyricsView.swift */,
-				AA2000070000000100000007 /* BelowNotchLyricsOverlay.swift */,
+
 			);
 			path = Lyrics;
 			sourceTree = "<group>";
@@ -1137,7 +1137,7 @@
 				AA1000030000000100000003 /* LyricsCache.swift in Sources */,
 				AA1000040000000100000004 /* LyricsManager.swift in Sources */,
 				AA1000050000000100000005 /* LyricsView.swift in Sources */,
-				AA1000070000000100000007 /* BelowNotchLyricsOverlay.swift in Sources */,
+
 
 				BB1000010000000100000001 /* PomodoroManager.swift in Sources */,
 				BB1000020000000100000002 /* PomodoroView.swift in Sources */,

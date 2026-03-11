@@ -125,21 +125,6 @@ class BoringViewModel: NSObject, ObservableObject {
         return closedNotchSize.height
     }
 
-    /// Total collapsed height — includes below-notch lyrics extension when active.
-    var effectiveClosedNotchHeight: CGFloat {
-        let base = collapsedIndicatorHeight
-        if notchState == .closed
-            && Defaults[.enableLyrics]
-            && Defaults[.lyricsDisplayMode] == .belowNotch
-            && MusicManager.shared.isPlaying
-            && LyricsManager.shared.hasLyrics
-            && !LyricsManager.shared.isFetching
-        {
-            return base + 24
-        }
-        return base
-    }
-
     var chinHeight: CGFloat {
         if isFloatingTab { return 0 }
 
@@ -154,7 +139,7 @@ class BoringViewModel: NSObject, ObservableObject {
         if notchState == .open { return 0 }
 
         let menuBarHeight = currentScreen.frame.maxY - currentScreen.visibleFrame.maxY
-        let currentHeight = effectiveClosedNotchHeight
+        let currentHeight = collapsedIndicatorHeight
 
         if currentHeight == 0 { return 0 }
 

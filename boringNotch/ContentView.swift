@@ -48,7 +48,6 @@ struct ContentView: View {
 
     @State private var haptics: Bool = false
     @State private var carouselIndex: Int = 0
-
     @Namespace var albumArtNamespace
 
     @Default(.useMusicVisualizer) var useMusicVisualizer
@@ -139,15 +138,6 @@ struct ContentView: View {
         }
 
         return chinWidth
-    }
-
-    private var belowNotchLyricsVisible: Bool {
-        vm.notchState == .closed
-            && Defaults[.enableLyrics]
-            && Defaults[.lyricsDisplayMode] == .belowNotch
-            && musicManager.isPlaying
-            && lyricsManager.hasLyrics
-            && !lyricsManager.isFetching
     }
 
     var body: some View {
@@ -465,9 +455,6 @@ struct ContentView: View {
                       .fixedSize(horizontal: false, vertical: true)
               }
               .zIndex(2)
-            if belowNotchLyricsVisible {
-                BelowNotchLyricsStrip(notchWidth: vm.closedNotchSize.width)
-            }
             if vm.notchState == .open {
                 VStack {
                     switch coordinator.currentView {
